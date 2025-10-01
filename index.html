@@ -1,0 +1,3122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EasyHomework - Make Learning Fun!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #ffdd00 0%, #ff8c00 100%);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .sticker {
+            animation: bounce 0.5s ease-in-out;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+        
+        .progress-bar {
+            transition: width 0.8s ease-in-out;
+        }
+        
+        .error-message {
+            color: #dc2626;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+        
+        .field-error {
+            border-color: #dc2626 !important;
+            background-color: #fef2f2 !important;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            max-width: 400px;
+            padding: 16px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            transform: translateX(100%);
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.success {
+            background-color: #10b981;
+        }
+        
+        .notification.error {
+            background-color: #ef4444;
+        }
+        
+        .notification.warning {
+            background-color: #f59e0b;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <!-- Navigation -->
+    <nav class="gradient-bg shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-3">
+                    <svg width="40" height="40" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Background circle -->
+                        <circle cx="50" cy="50" r="45" fill="#FFD700" stroke="#FF8C00" stroke-width="3"/>
+                        
+                        <!-- Book base -->
+                        <rect x="25" y="35" width="50" height="35" fill="#4A90E2" rx="3"/>
+                        <rect x="27" y="37" width="46" height="31" fill="#5BA0F2" rx="2"/>
+                        
+                        <!-- Book pages -->
+                        <rect x="30" y="40" width="40" height="2" fill="white" opacity="0.8"/>
+                        <rect x="30" y="44" width="35" height="2" fill="white" opacity="0.8"/>
+                        <rect x="30" y="48" width="38" height="2" fill="white" opacity="0.8"/>
+                        <rect x="30" y="52" width="32" height="2" fill="white" opacity="0.8"/>
+                        
+                        <!-- Pencil -->
+                        <rect x="60" y="25" width="4" height="25" fill="#FFB347" transform="rotate(15 62 37.5)"/>
+                        <polygon points="61,23 63,23 62,20" fill="#FF6B6B" transform="rotate(15 62 21.5)"/>
+                        <rect x="60.5" y="48" width="3" height="3" fill="#8B4513" transform="rotate(15 62 49.5)"/>
+                        
+                        <!-- Star accent -->
+                        <polygon points="80,20 82,26 88,26 83,30 85,36 80,32 75,36 77,30 72,26 78,26" fill="#FFD700"/>
+                        
+                        <!-- Checkmark -->
+                        <path d="M35 55 L40 60 L50 50" stroke="#00C851" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <h1 class="text-2xl font-bold text-black">EasyHomework</h1>
+                </div>
+                <div class="flex space-x-4">
+                    <button id="loginBtn" onclick="showLogin()" class="bg-white text-gray-800 px-4 py-2 rounded-lg font-semibold hover:bg-gray-100 transition">Login</button>
+                    <button id="registerBtn" onclick="showRegister()" class="bg-white text-gray-800 px-4 py-2 rounded-lg font-semibold hover:bg-gray-100 transition">Register</button>
+                    
+                    <!-- User Dropdown (hidden by default) -->
+                    <div id="userDropdown" class="relative hidden">
+                        <button onclick="toggleDropdown()" class="bg-white text-gray-800 px-4 py-2 rounded-lg font-semibold hover:bg-gray-100 transition flex items-center space-x-2">
+                            <span id="userNameDisplay">User Name</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        
+                        <!-- Dropdown Menu -->
+                        <div id="dropdownMenu" class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 hidden z-50">
+                            <div class="px-4 py-3 border-b border-gray-200">
+                                <p class="text-sm font-semibold text-gray-800" id="dropdownUserName">User Name</p>
+                                <p class="text-xs text-gray-600" id="dropdownUserType">Parent</p>
+                            </div>
+                            <button onclick="logout()" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition flex items-center space-x-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                                </svg>
+                                <span>Logout</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div id="heroSection" class="gradient-bg py-16">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <h2 class="text-5xl font-bold text-black mb-6">Transform Homework Battles into Fun Adventures!</h2>
+            <p class="text-xl text-black mb-8 max-w-3xl mx-auto">
+                Say goodbye to daily homework struggles. Watch your children eagerly complete tasks, earn colorful stickers, 
+                and compete for exciting rewards while you track their progress on a beautiful dashboard.
+            </p>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div id="featuresSection" class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4">
+            <h3 class="text-3xl font-bold text-center text-gray-800 mb-12">Why Families Love EasyHomework</h3>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="text-center p-6 rounded-xl bg-gradient-to-br from-yellow-200 to-orange-300 card-hover">
+                    <div class="text-4xl mb-4">🏆</div>
+                    <h4 class="text-xl font-bold text-gray-800 mb-3">Gamified Learning</h4>
+                    <p class="text-gray-700">Children earn points and stickers for every completed task, making homework feel like an exciting game!</p>
+                </div>
+                <div class="text-center p-6 rounded-xl bg-gradient-to-br from-yellow-200 to-green-300 card-hover">
+                    <div class="text-4xl mb-4">📊</div>
+                    <h4 class="text-xl font-bold text-gray-800 mb-3">Progress Tracking</h4>
+                    <p class="text-gray-700">Beautiful dashboards show real-time progress, helping parents celebrate every achievement.</p>
+                </div>
+                <div class="text-center p-6 rounded-xl bg-gradient-to-br from-yellow-200 to-blue-300 card-hover">
+                    <div class="text-4xl mb-4">🤝</div>
+                    <h4 class="text-xl font-bold text-gray-800 mb-3">Teacher Collaboration</h4>
+                    <p class="text-gray-700">Invite teachers to supervise homework and ensure assignments are completed on time.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Get Started Section -->
+    <div id="getStartedSection" class="py-16 gradient-bg">
+        <div class="max-w-4xl mx-auto px-4 text-center">
+            <h3 class="text-3xl font-bold text-black mb-6">Ready to Transform Homework Time?</h3>
+            <p class="text-xl text-black mb-8">Join thousands of families already using EasyHomework to make learning fun and engaging!</p>
+            <button onclick="showRegister()" class="bg-white text-gray-800 px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-100 transition shadow-lg">
+                Start Your 7-Day Free Trial
+            </button>
+            <p class="text-black mt-4 text-sm">No credit card required • Cancel anytime</p>
+        </div>
+    </div>
+
+    <!-- Pricing Section -->
+    <div id="pricingSection" class="py-16 bg-gray-50">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="text-center mb-12">
+                <h3 class="text-3xl font-bold text-gray-800 mb-4">Simple, Affordable Pricing</h3>
+                <p class="text-xl text-gray-600">Start with a 7-day free trial, then choose the plan that fits your family</p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                <!-- Single Child Plan -->
+                <div class="bg-white rounded-2xl p-8 shadow-lg border-2 border-gray-200 card-hover">
+                    <div class="text-center mb-6">
+                        <h4 class="text-2xl font-bold text-gray-800 mb-2">Single Child</h4>
+                        <p class="text-gray-600">Perfect for families with one child</p>
+                    </div>
+                    
+                    <div class="text-center mb-6">
+                        <div class="text-4xl font-bold text-gray-800 mb-2">₦3,000</div>
+                        <p class="text-gray-600">per month</p>
+                    </div>
+                    
+                    <ul class="space-y-3 mb-8">
+                        <li class="flex items-center">
+                            <span class="text-green-500 mr-3">✅</span>
+                            <span class="text-gray-700">Track 1 child's homework</span>
+                        </li>
+                        <li class="flex items-center">
+                            <span class="text-green-500 mr-3">✅</span>
+                            <span class="text-gray-700">Unlimited tasks & rewards</span>
+                        </li>
+                        <li class="flex items-center">
+                            <span class="text-green-500 mr-3">✅</span>
+                            <span class="text-gray-700">Teacher collaboration</span>
+                        </li>
+                        <li class="flex items-center">
+                            <span class="text-green-500 mr-3">✅</span>
+                            <span class="text-gray-700">Progress tracking & analytics</span>
+                        </li>
+                        <li class="flex items-center">
+                            <span class="text-green-500 mr-3">✅</span>
+                            <span class="text-gray-700">Gamification & stickers</span>
+                        </li>
+                    </ul>
+                    
+                    <button onclick="selectPlan('single', 3000)" class="w-full gradient-bg text-white py-4 rounded-lg font-semibold hover:opacity-90 transition">
+                        Choose Single Child Plan
+                    </button>
+                </div>
+                
+                <!-- Multiple Children Plan -->
+                <div class="bg-white rounded-2xl p-8 shadow-lg border-2 border-yellow-400 card-hover relative">
+                    <div class="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                        <span class="bg-yellow-400 text-black px-4 py-2 rounded-full text-sm font-bold">MOST POPULAR</span>
+                    </div>
+                    
+                    <div class="text-center mb-6">
+                        <h4 class="text-2xl font-bold text-gray-800 mb-2">Multiple Children</h4>
+                        <p class="text-gray-600">For families with 2-6 children</p>
+                    </div>
+                    
+                    <div class="text-center mb-6">
+                        <div class="text-4xl font-bold text-gray-800 mb-2">₦6,000</div>
+                        <p class="text-gray-600">per month</p>
+                    </div>
+                    
+                    <ul class="space-y-3 mb-8">
+                        <li class="flex items-center">
+                            <span class="text-green-500 mr-3">✅</span>
+                            <span class="text-gray-700">Track up to 6 children</span>
+                        </li>
+                        <li class="flex items-center">
+                            <span class="text-green-500 mr-3">✅</span>
+                            <span class="text-gray-700">Unlimited tasks & rewards</span>
+                        </li>
+                        <li class="flex items-center">
+                            <span class="text-green-500 mr-3">✅</span>
+                            <span class="text-gray-700">Multiple teacher invitations</span>
+                        </li>
+                        <li class="flex items-center">
+                            <span class="text-green-500 mr-3">✅</span>
+                            <span class="text-gray-700">Family progress dashboard</span>
+                        </li>
+                        <li class="flex items-center">
+                            <span class="text-green-500 mr-3">✅</span>
+                            <span class="text-gray-700">Priority support</span>
+                        </li>
+                    </ul>
+                    
+                    <button onclick="selectPlan('multiple', 6000)" class="w-full gradient-bg text-white py-4 rounded-lg font-semibold hover:opacity-90 transition">
+                        Choose Multiple Children Plan
+                    </button>
+                </div>
+            </div>
+            
+            <div class="text-center mt-12">
+                <p class="text-gray-600 mb-4">
+                    <strong>Free Trial Details:</strong> Full access to all features for 7 days. No credit card required to start.
+                </p>
+                <p class="text-sm text-gray-500 mb-4">
+                    Cancel anytime during your trial period with no charges. After trial, choose the plan that works best for your family.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Footer -->
+    <footer id="contactFooter" class="bg-gray-800 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="grid md:grid-cols-3 gap-8">
+                <div>
+                    <div class="flex items-center space-x-3 mb-4">
+                        <svg width="32" height="32" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Background circle -->
+                            <circle cx="50" cy="50" r="45" fill="#FFD700" stroke="#FF8C00" stroke-width="3"/>
+                            
+                            <!-- Book base -->
+                            <rect x="25" y="35" width="50" height="35" fill="#4A90E2" rx="3"/>
+                            <rect x="27" y="37" width="46" height="31" fill="#5BA0F2" rx="2"/>
+                            
+                            <!-- Book pages -->
+                            <rect x="30" y="40" width="40" height="2" fill="white" opacity="0.8"/>
+                            <rect x="30" y="44" width="35" height="2" fill="white" opacity="0.8"/>
+                            <rect x="30" y="48" width="38" height="2" fill="white" opacity="0.8"/>
+                            <rect x="30" y="52" width="32" height="2" fill="white" opacity="0.8"/>
+                            
+                            <!-- Pencil -->
+                            <rect x="60" y="25" width="4" height="25" fill="#FFB347" transform="rotate(15 62 37.5)"/>
+                            <polygon points="61,23 63,23 62,20" fill="#FF6B6B" transform="rotate(15 62 21.5)"/>
+                            <rect x="60.5" y="48" width="3" height="3" fill="#8B4513" transform="rotate(15 62 49.5)"/>
+                            
+                            <!-- Star accent -->
+                            <polygon points="80,20 82,26 88,26 83,30 85,36 80,32 75,36 77,30 72,26 78,26" fill="#FFD700"/>
+                            
+                            <!-- Checkmark -->
+                            <path d="M35 55 L40 60 L50 50" stroke="#00C851" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <h3 class="text-2xl font-bold">EasyHomework</h3>
+                    </div>
+                    <p class="text-gray-300 mb-4">Making homework fun and engaging for families everywhere.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-300 hover:text-white transition">
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                            </svg>
+                        </a>
+                        <a href="#" class="text-gray-300 hover:text-white transition">
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Contact Us</h4>
+                    <div class="space-y-3">
+                        <div class="flex items-center space-x-3">
+                            <a href="mailto:morichcare@gmail.com" class="text-gray-300 hover:text-white transition">morichcare@gmail.com</a>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <a href="tel:+2349016472315" class="text-gray-300 hover:text-white transition">+234 901 647 2315</a>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <span class="text-gray-300">Lagos, Nigeria</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
+                    <div class="space-y-3">
+                        <div>
+                            <a href="#featuresSection" class="text-gray-300 hover:text-white transition">Features</a>
+                        </div>
+                        <div>
+                            <a href="#pricingSection" class="text-gray-300 hover:text-white transition">Pricing</a>
+                        </div>
+                        <div>
+                            <a href="#getStartedSection" class="text-gray-300 hover:text-white transition">Get Started</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center">
+                <p class="text-gray-400">&copy; 2025 EasyHomework. All rights reserved. Made with ❤️ for families.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl p-8 max-w-md w-full mx-4">
+            <div class="text-center mb-6">
+                <h3 class="text-2xl font-bold text-gray-800">Welcome Back! 👋</h3>
+                <p class="text-gray-600">Sign in to continue your homework journey</p>
+            </div>
+            
+            <!-- User Type Selection -->
+            <div class="mb-6">
+                <label class="block text-gray-700 font-semibold mb-2">I am a...</label>
+                <div class="grid grid-cols-2 gap-3">
+                    <button type="button" onclick="selectLoginType('parent')" id="parentLoginBtn" class="p-3 border-2 border-gray-300 rounded-lg hover:border-yellow-500 hover:bg-yellow-50 transition text-center">
+                        <div class="text-2xl mb-1">👨‍👩‍👧‍👦</div>
+                        <div class="font-semibold text-gray-800 text-sm">Parent</div>
+                    </button>
+                    <button type="button" onclick="selectLoginType('teacher')" id="teacherLoginBtn" class="p-3 border-2 border-gray-300 rounded-lg hover:border-yellow-500 hover:bg-yellow-50 transition text-center">
+                        <div class="text-2xl mb-1">👩‍🏫</div>
+                        <div class="font-semibold text-gray-800 text-sm">Teacher</div>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Parent Login Form -->
+            <form id="parentLoginForm" onsubmit="handleLogin(event)" class="hidden">
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-semibold mb-2">Email</label>
+                    <input type="email" id="parentEmail" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+                </div>
+                <div class="mb-6">
+                    <label class="block text-gray-700 font-semibold mb-2">Password</label>
+                    <input type="password" id="parentPassword" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+                </div>
+                <button type="submit" class="w-full gradient-bg text-white py-3 rounded-lg font-semibold hover:opacity-90 transition">
+                    Sign In as Parent
+                </button>
+            </form>
+            
+            <!-- Teacher Login Form -->
+            <form id="teacherLoginForm" onsubmit="handleTeacherLogin(event)" class="hidden">
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-semibold mb-2">Full Name</label>
+                    <input type="text" id="teacherName" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent" placeholder="Enter your full name">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-semibold mb-2">Phone Number</label>
+                    <input type="tel" id="teacherPhone" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+                </div>
+                <div class="mb-6">
+                    <label class="block text-gray-700 font-semibold mb-2">Teacher Code</label>
+                    <input type="text" id="teacherCode" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent" placeholder="Enter code from parent">
+                </div>
+                <button type="submit" class="w-full gradient-bg text-white py-3 rounded-lg font-semibold hover:opacity-90 transition">
+                    Sign In as Teacher
+                </button>
+            </form>
+            
+            <button onclick="closeModal()" class="mt-4 w-full text-gray-500 hover:text-gray-700">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div id="registerModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl p-6 max-w-sm w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="text-center mb-4">
+                <h3 class="text-xl font-bold text-gray-800">Join EasyHomework! 🎉</h3>
+                <p class="text-sm text-gray-600">Create your parent account and start the fun</p>
+            </div>
+            <form id="registerForm" onsubmit="handleRegister(event)">
+                <!-- Full Name -->
+                <div class="mb-3">
+                    <label class="block text-gray-700 font-semibold mb-1 text-sm">Full Name</label>
+                    <input type="text" id="reg_fullName" name="fullName" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent text-sm">
+                    <div id="error_fullName" class="error-message hidden"></div>
+                </div>
+
+                <!-- Email -->
+                <div class="mb-3">
+                    <label class="block text-gray-700 font-semibold mb-1 text-sm">Email</label>
+                    <input type="email" id="reg_email" name="email" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent text-sm">
+                    <div id="error_email" class="error-message hidden"></div>
+                </div>
+
+                <!-- Phone -->
+                <div class="mb-3">
+                    <label class="block text-gray-700 font-semibold mb-1 text-sm">Phone Number</label>
+                    <input type="tel" id="reg_phone" name="phone" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent text-sm">
+                    <div id="error_phone" class="error-message hidden"></div>
+                </div>
+
+                <!-- Children Section -->
+                <div class="mb-3">
+                    <label class="block text-gray-700 font-semibold mb-2 text-sm">How many children do you have? <span class="text-red-500">*</span></label>
+                    
+                    <!-- Child Count Selection -->
+                    <div class="grid grid-cols-2 gap-2 mb-3">
+                        <button type="button" onclick="selectChildCount('single')" id="singleChildBtn" class="p-3 border-2 border-gray-300 rounded-lg hover:border-yellow-500 hover:bg-yellow-50 transition text-center">
+                            <div class="text-2xl mb-1">👶</div>
+                            <div class="font-semibold text-gray-800 text-sm">One Child</div>
+                            <div class="text-xs text-gray-600">Single child</div>
+                        </button>
+                        
+                        <button type="button" onclick="selectChildCount('multiple')" id="multipleChildrenBtn" class="p-3 border-2 border-gray-300 rounded-lg hover:border-yellow-500 hover:bg-yellow-50 transition text-center">
+                            <div class="text-2xl mb-1">👨‍👩‍👧‍👦</div>
+                            <div class="font-semibold text-gray-800 text-sm">Multiple</div>
+                            <div class="text-xs text-gray-600">2-6 children</div>
+                        </button>
+                    </div>
+                    <div id="error_childCount" class="error-message hidden"></div>
+                    
+                    <!-- Single Child Input -->
+                    <div id="singleChildInput" class="hidden">
+                        <label class="block text-gray-700 font-semibold mb-1 text-sm">Child's Name <span class="text-red-500">*</span></label>
+                        <input type="text" id="reg_singleChildName" name="singleChildName" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent text-sm" placeholder="Enter your child's name">
+                        <div id="error_singleChildName" class="error-message hidden"></div>
+                    </div>
+                    
+                    <!-- Multiple Children Inputs -->
+                    <div id="multipleChildrenInputs" class="hidden">
+                        <label class="block text-gray-700 font-semibold mb-1 text-sm">Children's Names <span class="text-red-500">*</span></label>
+                        <div id="childrenInputContainer">
+                            <div class="flex items-center space-x-2 mb-2">
+                                <input type="text" name="childName" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent text-sm" placeholder="First child's name">
+                                <button type="button" onclick="removeChildInput(this)" class="text-red-500 hover:text-red-700 hover:bg-red-50 px-3 py-2 rounded-lg font-bold transition">✕</button>
+                            </div>
+                            <div class="flex items-center space-x-2 mb-2">
+                                <input type="text" name="childName" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent text-sm" placeholder="Second child's name">
+                                <button type="button" onclick="removeChildInput(this)" class="text-red-500 hover:text-red-700 hover:bg-red-50 px-3 py-2 rounded-lg font-bold transition">✕</button>
+                            </div>
+                        </div>
+                        <button type="button" onclick="addChildInput()" id="addChildButton" class="text-blue-500 hover:text-blue-700 font-semibold text-xs">+ Add another child (up to 6 total)</button>
+                        <div id="error_multipleChildren" class="error-message hidden"></div>
+                        <p class="text-xs text-gray-500 mt-1">All children names are required to complete registration</p>
+                    </div>
+                </div>
+
+                <!-- Password -->
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-semibold mb-1 text-sm">Password</label>
+                    <input type="password" id="reg_password" name="password" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent text-sm">
+                    <div id="error_password" class="error-message hidden"></div>
+                </div>
+
+                <button type="submit" class="w-full gradient-bg text-white py-2.5 rounded-lg font-semibold hover:opacity-90 transition text-sm">
+                    Create Parent Account
+                </button>
+            </form>
+            <button onclick="closeModal()" class="mt-3 w-full text-gray-500 hover:text-gray-700 text-sm">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashboard" class="hidden">
+        <!-- Parent Dashboard -->
+        <div id="parentDashboard" class="hidden">
+            <div class="gradient-bg py-8">
+                <div class="max-w-7xl mx-auto px-4">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h2 class="text-3xl font-bold text-white" id="dashboardTitle">Family Dashboard 👨‍👩‍👧‍👦</h2>
+                            <p class="text-black" id="welcomeMessage">Welcome! Manage tasks and track progress together</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="max-w-7xl mx-auto px-4 py-8">
+                <!-- Trial Status Banner -->
+                <div id="trialBanner" class="hidden mb-8"></div>
+                
+                <!-- Quick Stats -->
+                <div class="grid md:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white rounded-xl p-6 shadow-lg card-hover border-l-4 border-purple-500">
+                        <div class="flex items-center">
+                            <div class="text-3xl mr-4">📝</div>
+                            <div>
+                                <p class="text-gray-700">Total Tasks</p>
+                                <p class="text-2xl font-bold text-purple-600" id="totalTasks">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl p-6 shadow-lg card-hover border-l-4 border-green-500">
+                        <div class="flex items-center">
+                            <div class="text-3xl mr-4">✅</div>
+                            <div>
+                                <p class="text-gray-700">Completed</p>
+                                <p class="text-2xl font-bold text-green-600" id="completedTasks">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl p-6 shadow-lg card-hover border-l-4 border-yellow-500">
+                        <div class="flex items-center">
+                            <div class="text-3xl mr-4">⭐</div>
+                            <div>
+                                <p class="text-gray-700">Total Points</p>
+                                <p class="text-2xl font-bold text-yellow-600" id="totalPoints">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl p-6 shadow-lg card-hover border-l-4 border-blue-500">
+                        <div class="flex items-center">
+                            <div class="text-3xl mr-4">👨‍🏫</div>
+                            <div>
+                                <p class="text-gray-700">Teachers</p>
+                                <p class="text-2xl font-bold text-blue-600" id="teacherCount">0</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- API Status Banner -->
+                <div id="apiStatusBanner" class="mb-6">
+                    <!-- API status will be shown here -->
+                </div>
+
+                <!-- Action Buttons -->
+                <div id="actionButtons" class="flex flex-wrap gap-4 mb-8">
+                    <button onclick="showAddTaskModal()" class="gradient-bg text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition shadow-lg">
+                        ➕ Add New Task
+                    </button>
+                    <button id="inviteTeacherBtn" onclick="showInviteTeacherModal()" class="bg-blue-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-600 transition shadow-lg">
+                        👩‍🏫 Invite Teacher
+                    </button>
+                    <button onclick="showRewardsModal()" class="bg-green-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-600 transition shadow-lg">
+                        🎁 Manage Rewards
+                    </button>
+                    <button onclick="exportParentEmails()" class="bg-purple-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-purple-600 transition shadow-lg">
+                        📊 Export to Google Sheets
+                    </button>
+                    <button onclick="showAPIConfigModal()" class="bg-gray-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-gray-700 transition shadow-lg">
+                        ⚙️ API Settings
+                    </button>
+                </div>
+
+                <!-- Family Leaderboard -->
+                <div class="bg-white rounded-xl p-6 shadow-lg mb-8">
+                    <h3 class="text-xl font-bold text-gray-800 mb-6">🏆 Family Leaderboard</h3>
+                    <div id="familyLeaderboard" class="space-y-4">
+                        <!-- Leaderboard will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Tasks List -->
+                <div class="bg-white rounded-xl p-6 shadow-lg">
+                    <h3 class="text-xl font-bold text-gray-800 mb-6">📋 Current Tasks</h3>
+                    <div id="tasksList" class="space-y-4">
+                        <!-- Tasks will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Task Modal -->
+    <div id="addTaskModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl p-8 max-w-md w-full mx-4">
+            <h3 class="text-2xl font-bold text-gray-800 mb-6">➕ Add New Task</h3>
+            <form onsubmit="addTask(event)">
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-semibold mb-2">Task Title</label>
+                    <input type="text" id="taskTitle" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent" placeholder="e.g., Complete Math Homework">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-semibold mb-2">Assign to Child</label>
+                    <select id="childSelect" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+                        <option value="">Select child...</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-semibold mb-2">Category</label>
+                    <select id="taskCategory" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+                        <option value="">Select category...</option>
+                        <option value="homework">📝 Homework</option>
+                        <option value="reading">📚 Reading</option>
+                        <option value="project">🎨 Project</option>
+                        <option value="chores">🏠 Household Chores</option>
+                    </select>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-gray-700 font-semibold mb-2">Due Date</label>
+                    <input type="date" id="taskDueDate" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+                </div>
+                <div class="flex space-x-4">
+                    <button type="submit" class="flex-1 gradient-bg text-white py-3 rounded-lg font-semibold hover:opacity-90 transition">
+                        Add Task
+                    </button>
+                    <button type="button" onclick="closeModal()" class="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-400 transition">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Invite Teacher Modal -->
+    <div id="inviteTeacherModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl p-8 max-w-md w-full mx-4">
+            <h3 class="text-2xl font-bold text-gray-800 mb-6">👩‍🏫 Invite Teacher</h3>
+            <div class="text-center">
+                <div class="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-6 mb-6">
+                    <p class="text-gray-700 mb-4">Share this code with your teacher:</p>
+                    <div class="text-3xl font-bold bg-white rounded-lg py-4 px-6 border-2" style="color: #fcd803; border-color: #fcd803;" id="teacherCode">
+                        GENERATING...
+                    </div>
+                    <button onclick="copyTeacherCode()" class="mt-4 font-semibold hover:opacity-80" style="color: #fcd803;">
+                        📋 Copy Code
+                    </button>
+                </div>
+                <p class="text-gray-600 text-sm mb-6">
+                    The teacher will need this code during registration to join your family's homework tracking.
+                </p>
+                <button onclick="closeModal()" class="w-full gradient-bg text-white py-3 rounded-lg font-semibold hover:opacity-90 transition">
+                    Done
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rewards Modal -->
+    <div id="rewardsModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl p-8 max-w-lg w-full mx-4">
+            <h3 class="text-2xl font-bold text-gray-800 mb-6">🎁 Available Rewards</h3>
+            <div class="space-y-4 mb-6">
+                <div class="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
+                    <div class="flex items-center">
+                        <span class="text-2xl mr-3">🎬</span>
+                        <span class="font-semibold">Movie Night</span>
+                    </div>
+                    <span class="font-bold" style="color: #fcd803;">100 pts</span>
+                </div>
+                <div class="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
+                    <div class="flex items-center">
+                        <span class="text-2xl mr-3">💻</span>
+                        <span class="font-semibold">1 Hour Laptop Access</span>
+                    </div>
+                    <span class="font-bold" style="color: #fcd803;">100 pts</span>
+                </div>
+                <div class="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
+                    <div class="flex items-center">
+                        <span class="text-2xl mr-3">💰</span>
+                        <span class="font-semibold">₦5,000 Cash</span>
+                    </div>
+                    <span class="font-bold" style="color: #fcd803;">200 pts</span>
+                </div>
+                <div class="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
+                    <div class="flex items-center">
+                        <span class="text-2xl mr-3">💸</span>
+                        <span class="font-semibold">₦10,000 Cash</span>
+                    </div>
+                    <span class="font-bold" style="color: #fcd803;">400 pts</span>
+                </div>
+                <div class="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
+                    <div class="flex items-center">
+                        <span class="text-2xl mr-3">🍕</span>
+                        <span class="font-semibold">Special Meal</span>
+                    </div>
+                    <span class="font-bold" style="color: #fcd803;">150 pts</span>
+                </div>
+            </div>
+            <button onclick="closeModal()" class="w-full gradient-bg text-white py-3 rounded-lg font-semibold hover:opacity-90 transition">
+                Close
+            </button>
+        </div>
+    </div>
+
+    <!-- API Configuration Modal -->
+    <div id="apiConfigModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl p-8 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-gray-800">⚙️ API Configuration</h3>
+                <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700 text-2xl">×</button>
+            </div>
+            
+            <div class="space-y-6">
+                <!-- Current Status -->
+                <div class="bg-gray-50 border-l-4 border-blue-500 p-4">
+                    <h4 class="font-semibold text-blue-800 mb-2">📡 Current API Status</h4>
+                    <div id="currentApiStatus" class="text-blue-700">
+                        <p><strong>Base URL:</strong> <span id="currentApiUrl">https://your-api-domain.com/api</span></p>
+                        <p><strong>Status:</strong> <span id="apiConnectionStatus">Not Connected (Using Local Storage)</span></p>
+                        <p><strong>Last Sync:</strong> <span id="lastSyncTime">Never</span></p>
+                    </div>
+                </div>
+                
+                <!-- Configuration Form -->
+                <form id="apiConfigForm" onsubmit="updateAPIConfig(event)">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 font-semibold mb-2">API Base URL</label>
+                        <input type="url" id="apiBaseUrl" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent" placeholder="https://your-api-domain.com/api">
+                        <p class="text-sm text-gray-600 mt-1">Enter your backend API URL (without trailing slash)</p>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-700 font-semibold mb-2">API Key (Optional)</label>
+                        <input type="password" id="apiKey" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent" placeholder="Enter API key if required">
+                        <p class="text-sm text-gray-600 mt-1">Some APIs require an API key for authentication</p>
+                    </div>
+                    
+                    <div class="flex space-x-4 mb-6">
+                        <button type="button" onclick="testAPIConnection()" class="flex-1 bg-blue-500 text-white py-3 rounded-lg font-semibold hover:bg-blue-600 transition">
+                            🔍 Test Connection
+                        </button>
+                        <button type="submit" class="flex-1 gradient-bg text-white py-3 rounded-lg font-semibold hover:opacity-90 transition">
+                            💾 Save Configuration
+                        </button>
+                    </div>
+                </form>
+                
+                <!-- API Documentation -->
+                <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4">
+                    <h4 class="font-semibold text-yellow-800 mb-2">📚 API Requirements</h4>
+                    <div class="text-yellow-700 text-sm space-y-2">
+                        <p><strong>Your API should support these endpoints:</strong></p>
+                        <ul class="list-disc list-inside space-y-1 ml-4">
+                            <li><code>POST /auth/register</code> - User registration</li>
+                            <li><code>POST /auth/login</code> - User authentication</li>
+                            <li><code>GET /tasks</code> - Fetch user tasks</li>
+                            <li><code>POST /tasks</code> - Create new task</li>
+                            <li><code>PATCH /tasks/:id</code> - Update task (complete/edit)</li>
+                            <li><code>DELETE /tasks/:id</code> - Delete task</li>
+                            <li><code>POST /teacher/login</code> - Teacher authentication</li>
+                        </ul>
+                        <p class="mt-2"><strong>Expected Response Format:</strong> <code>{"success": true, "data": {...}}</code></p>
+                    </div>
+                </div>
+                
+                <!-- Sync Options -->
+                <div class="bg-green-50 border-l-4 border-green-500 p-4">
+                    <h4 class="font-semibold text-green-800 mb-2">🔄 Data Sync Options</h4>
+                    <div class="space-y-3">
+                        <button onclick="syncAllData()" class="w-full bg-green-500 text-white py-2 rounded-lg font-semibold hover:bg-green-600 transition">
+                            📤 Sync Local Data to API
+                        </button>
+                        <button onclick="resetToLocalMode()" class="w-full bg-gray-500 text-white py-2 rounded-lg font-semibold hover:bg-gray-600 transition">
+                            💾 Switch to Local-Only Mode
+                        </button>
+                        <p class="text-green-700 text-sm">
+                            <strong>Sync:</strong> Upload your local tasks and user data to the API.<br>
+                            <strong>Local Mode:</strong> Disable API and use only browser storage.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentUser = null;
+        let selectedChildCount = null;
+        let tasks = [];
+
+        // API Configuration
+        const API_CONFIG = {
+            baseURL: 'https://your-api-domain.com/api', // Replace with your actual API URL
+            endpoints: {
+                // Authentication
+                register: '/auth/register',
+                login: '/auth/login',
+                logout: '/auth/logout',
+                refreshToken: '/auth/refresh',
+                
+                // User Management
+                profile: '/user/profile',
+                updateProfile: '/user/profile',
+                
+                // Children Management
+                children: '/user/children',
+                addChild: '/user/children',
+                updateChild: '/user/children',
+                deleteChild: '/user/children',
+                
+                // Task Management
+                tasks: '/tasks',
+                createTask: '/tasks',
+                updateTask: '/tasks',
+                deleteTask: '/tasks',
+                completeTask: '/tasks',
+                
+                // Teacher Management
+                generateTeacherCode: '/teacher/generate-code',
+                inviteTeacher: '/teacher/invite',
+                teacherLogin: '/teacher/login',
+                
+                // Analytics & Reports
+                dashboard: '/dashboard/stats',
+                leaderboard: '/dashboard/leaderboard',
+                export: '/dashboard/export',
+                
+                // Subscription & Payments
+                subscription: '/subscription/status',
+                createPayment: '/payments/create',
+                verifyPayment: '/payments/verify'
+            },
+            timeout: 10000, // 10 seconds
+            retryAttempts: 3
+        };
+
+        // API Client Class
+        class APIClient {
+            constructor() {
+                this.baseURL = API_CONFIG.baseURL;
+                this.token = this.getStoredToken();
+                this.refreshToken = this.getStoredRefreshToken();
+            }
+
+            // Token Management
+            getStoredToken() {
+                return localStorage.getItem('auth_token');
+            }
+
+            getStoredRefreshToken() {
+                return localStorage.getItem('refresh_token');
+            }
+
+            setTokens(token, refreshToken = null) {
+                this.token = token;
+                localStorage.setItem('auth_token', token);
+                
+                if (refreshToken) {
+                    this.refreshToken = refreshToken;
+                    localStorage.setItem('refresh_token', refreshToken);
+                }
+            }
+
+            clearTokens() {
+                this.token = null;
+                this.refreshToken = null;
+                localStorage.removeItem('auth_token');
+                localStorage.removeItem('refresh_token');
+            }
+
+            // HTTP Request Helper
+            async makeRequest(endpoint, options = {}) {
+                const url = `${this.baseURL}${endpoint}`;
+                const defaultHeaders = {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                };
+
+                // Add authorization header if token exists
+                if (this.token) {
+                    defaultHeaders['Authorization'] = `Bearer ${this.token}`;
+                }
+
+                const config = {
+                    method: options.method || 'GET',
+                    headers: { ...defaultHeaders, ...options.headers },
+                    ...options
+                };
+
+                // Add body for POST/PUT requests
+                if (options.data && (config.method === 'POST' || config.method === 'PUT' || config.method === 'PATCH')) {
+                    config.body = JSON.stringify(options.data);
+                }
+
+                try {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), API_CONFIG.timeout);
+                    
+                    config.signal = controller.signal;
+                    
+                    const response = await fetch(url, config);
+                    clearTimeout(timeoutId);
+
+                    // Handle token refresh for 401 errors
+                    if (response.status === 401 && this.refreshToken && endpoint !== API_CONFIG.endpoints.refreshToken) {
+                        const refreshed = await this.refreshAuthToken();
+                        if (refreshed) {
+                            // Retry original request with new token
+                            config.headers['Authorization'] = `Bearer ${this.token}`;
+                            const retryResponse = await fetch(url, config);
+                            return await this.handleResponse(retryResponse);
+                        } else {
+                            // Refresh failed, redirect to login
+                            this.handleAuthFailure();
+                            throw new Error('Authentication failed');
+                        }
+                    }
+
+                    return await this.handleResponse(response);
+                } catch (error) {
+                    if (error.name === 'AbortError') {
+                        throw new Error('Request timeout');
+                    }
+                    throw error;
+                }
+            }
+
+            async handleResponse(response) {
+                const contentType = response.headers.get('content-type');
+                let data;
+
+                if (contentType && contentType.includes('application/json')) {
+                    data = await response.json();
+                } else {
+                    data = await response.text();
+                }
+
+                if (!response.ok) {
+                    const error = new Error(data.message || `HTTP ${response.status}: ${response.statusText}`);
+                    error.status = response.status;
+                    error.data = data;
+                    throw error;
+                }
+
+                return data;
+            }
+
+            async refreshAuthToken() {
+                try {
+                    const response = await this.makeRequest(API_CONFIG.endpoints.refreshToken, {
+                        method: 'POST',
+                        data: { refresh_token: this.refreshToken }
+                    });
+
+                    if (response.access_token) {
+                        this.setTokens(response.access_token, response.refresh_token);
+                        return true;
+                    }
+                    return false;
+                } catch (error) {
+                    console.error('Token refresh failed:', error);
+                    return false;
+                }
+            }
+
+            handleAuthFailure() {
+                this.clearTokens();
+                currentUser = null;
+                updateNavigation();
+                hideDashboard();
+                NotificationManager.error('Session expired. Please log in again.');
+            }
+
+            // API Methods
+            async get(endpoint, params = {}) {
+                const queryString = new URLSearchParams(params).toString();
+                const url = queryString ? `${endpoint}?${queryString}` : endpoint;
+                return await this.makeRequest(url);
+            }
+
+            async post(endpoint, data = {}) {
+                return await this.makeRequest(endpoint, {
+                    method: 'POST',
+                    data
+                });
+            }
+
+            async put(endpoint, data = {}) {
+                return await this.makeRequest(endpoint, {
+                    method: 'PUT',
+                    data
+                });
+            }
+
+            async patch(endpoint, data = {}) {
+                return await this.makeRequest(endpoint, {
+                    method: 'PATCH',
+                    data
+                });
+            }
+
+            async delete(endpoint) {
+                return await this.makeRequest(endpoint, {
+                    method: 'DELETE'
+                });
+            }
+        }
+
+        // Initialize API client
+        const apiClient = new APIClient();
+
+        // Data Storage System (Enhanced with API sync)
+        class DataStorage {
+            static save(key, data) {
+                try {
+                    localStorage.setItem(key, JSON.stringify(data));
+                    return true;
+                } catch (error) {
+                    console.error('Error saving data:', error);
+                    return false;
+                }
+            }
+
+            static load(key) {
+                try {
+                    const data = localStorage.getItem(key);
+                    return data ? JSON.parse(data) : null;
+                } catch (error) {
+                    console.error('Error loading data:', error);
+                    return null;
+                }
+            }
+
+            static remove(key) {
+                try {
+                    localStorage.removeItem(key);
+                    return true;
+                } catch (error) {
+                    console.error('Error removing data:', error);
+                    return false;
+                }
+            }
+
+            // Sync data with API
+            static async syncWithAPI(key, apiEndpoint, fallbackData = null) {
+                try {
+                    const apiData = await apiClient.get(apiEndpoint);
+                    this.save(key, apiData);
+                    return apiData;
+                } catch (error) {
+                    console.warn(`API sync failed for ${key}, using local data:`, error);
+                    return this.load(key) || fallbackData;
+                }
+            }
+        }
+
+        // User Management System (Enhanced with API integration)
+        class UserManager {
+            static saveUser(user) {
+                DataStorage.save('currentUser', user);
+                return true;
+            }
+
+            static loadUser() {
+                return DataStorage.load('currentUser');
+            }
+
+            static clearUser() {
+                apiClient.clearTokens();
+                return DataStorage.remove('currentUser');
+            }
+
+            static getAllUsers() {
+                return DataStorage.load('allUsers') || [];
+            }
+
+            static saveAllUsers(users) {
+                return DataStorage.save('allUsers', users);
+            }
+
+            // API-first registration with local fallback
+            static async registerUser(userData) {
+                try {
+                    // Prepare API payload
+                    const apiPayload = {
+                        name: userData.fullName,
+                        email: userData.email,
+                        phone: userData.phone,
+                        password: userData.password,
+                        children: userData.children,
+                        user_type: 'parent'
+                    };
+
+                    // Try API registration first
+                    const response = await apiClient.post(API_CONFIG.endpoints.register, apiPayload);
+                    
+                    if (response.success && response.user) {
+                        // Store tokens if provided
+                        if (response.access_token) {
+                            apiClient.setTokens(response.access_token, response.refresh_token);
+                        }
+
+                        // Transform API response to local format
+                        const user = {
+                            id: response.user.id,
+                            type: 'parent',
+                            name: response.user.name,
+                            email: response.user.email,
+                            phone: response.user.phone,
+                            children: response.user.children || userData.children,
+                            trialStartDate: response.user.trial_start_date || new Date().toISOString(),
+                            subscriptionStatus: response.user.subscription_status || 'trial',
+                            teacherCode: response.user.teacher_code,
+                            createdAt: response.user.created_at || new Date().toISOString()
+                        };
+
+                        return { success: true, user: user };
+                    }
+                } catch (error) {
+                    console.warn('API registration failed, falling back to local:', error);
+                    
+                    // Handle specific API errors
+                    if (error.status === 409 || error.message?.includes('already exists')) {
+                        return { success: false, error: 'An account with this email already exists.' };
+                    }
+                    
+                    if (error.status === 400) {
+                        return { success: false, error: error.data?.message || 'Invalid registration data.' };
+                    }
+                }
+
+                // Fallback to local registration
+                return this.registerUserLocal(userData);
+            }
+
+            // Local registration fallback
+            static registerUserLocal(userData) {
+                const allUsers = this.getAllUsers();
+                
+                // Check if email already exists
+                const existingUser = allUsers.find(user => user.email === userData.email);
+                if (existingUser) {
+                    return { success: false, error: 'An account with this email already exists.' };
+                }
+
+                // Create new user
+                const newUser = {
+                    id: this.generateUserId(),
+                    type: 'parent',
+                    name: userData.fullName,
+                    email: userData.email,
+                    phone: userData.phone,
+                    passwordHash: this.hashPassword(userData.password),
+                    children: userData.children,
+                    trialStartDate: new Date().toISOString(),
+                    subscriptionStatus: 'trial',
+                    teacherCode: this.generateTeacherCode(),
+                    createdAt: new Date().toISOString(),
+                    isLocal: true // Flag for local-only accounts
+                };
+
+                // Add to users database
+                allUsers.push(newUser);
+                this.saveAllUsers(allUsers);
+
+                return { success: true, user: newUser };
+            }
+
+            // API-first authentication with local fallback
+            static async authenticateUser(email, password) {
+                try {
+                    // Try API authentication first
+                    const response = await apiClient.post(API_CONFIG.endpoints.login, {
+                        email: email,
+                        password: password,
+                        user_type: 'parent'
+                    });
+
+                    if (response.success && response.user) {
+                        // Store tokens
+                        if (response.access_token) {
+                            apiClient.setTokens(response.access_token, response.refresh_token);
+                        }
+
+                        // Transform API response to local format
+                        const user = {
+                            id: response.user.id,
+                            type: 'parent',
+                            name: response.user.name,
+                            email: response.user.email,
+                            phone: response.user.phone,
+                            children: response.user.children || [],
+                            trialStartDate: response.user.trial_start_date,
+                            subscriptionStatus: response.user.subscription_status || 'trial',
+                            teacherCode: response.user.teacher_code,
+                            lastLoginDate: new Date().toISOString()
+                        };
+
+                        return { success: true, user: user };
+                    }
+                } catch (error) {
+                    console.warn('API authentication failed, trying local:', error);
+                    
+                    // Handle specific API errors
+                    if (error.status === 401) {
+                        return { success: false, error: 'Invalid email or password.' };
+                    }
+                    
+                    if (error.status === 404) {
+                        return { success: false, error: 'Account not found.' };
+                    }
+                }
+
+                // Fallback to local authentication
+                return this.authenticateUserLocal(email, password);
+            }
+
+            // Local authentication fallback
+            static authenticateUserLocal(email, password) {
+                const allUsers = this.getAllUsers();
+                const user = allUsers.find(user => 
+                    user.email === email && 
+                    user.passwordHash === this.hashPassword(password)
+                );
+
+                if (user) {
+                    user.lastLoginDate = new Date().toISOString();
+                    const userIndex = allUsers.findIndex(u => u.id === user.id);
+                    if (userIndex !== -1) {
+                        allUsers[userIndex] = user;
+                        this.saveAllUsers(allUsers);
+                    }
+                    return { success: true, user: user };
+                } else {
+                    return { success: false, error: 'Invalid email or password.' };
+                }
+            }
+
+            // API-first teacher authentication
+            static async authenticateTeacher(name, phone, teacherCode) {
+                try {
+                    // Try API teacher authentication first
+                    const response = await apiClient.post(API_CONFIG.endpoints.teacherLogin, {
+                        name: name,
+                        phone: phone,
+                        teacher_code: teacherCode.toUpperCase(),
+                        user_type: 'teacher'
+                    });
+
+                    if (response.success && response.user) {
+                        // Store tokens
+                        if (response.access_token) {
+                            apiClient.setTokens(response.access_token, response.refresh_token);
+                        }
+
+                        // Transform API response to local format
+                        const teacher = {
+                            id: response.user.id,
+                            type: 'teacher',
+                            name: response.user.name,
+                            phone: response.user.phone,
+                            teacherCode: response.user.teacher_code,
+                            parentId: response.user.parent_id,
+                            parentName: response.user.parent_name,
+                            parentEmail: response.user.parent_email,
+                            children: response.user.children || [],
+                            lastLoginDate: new Date().toISOString()
+                        };
+
+                        return { success: true, user: teacher };
+                    }
+                } catch (error) {
+                    console.warn('API teacher authentication failed, trying local:', error);
+                    
+                    if (error.status === 401 || error.status === 404) {
+                        return { success: false, error: 'Invalid teacher code. Please check with the parent.' };
+                    }
+                }
+
+                // Fallback to local teacher authentication
+                return this.authenticateTeacherLocal(name, phone, teacherCode);
+            }
+
+            // Local teacher authentication fallback
+            static authenticateTeacherLocal(name, phone, teacherCode) {
+                const allUsers = this.getAllUsers();
+                
+                // Find parent with matching teacher code
+                const parentUser = allUsers.find(user => 
+                    user.type === 'parent' && 
+                    user.teacherCode && 
+                    user.teacherCode.toUpperCase() === teacherCode.toUpperCase()
+                );
+
+                if (!parentUser) {
+                    return { success: false, error: 'Invalid teacher code. Please check with the parent.' };
+                }
+
+                // Check if teacher already exists
+                const existingTeacher = allUsers.find(user => 
+                    user.type === 'teacher' && 
+                    user.parentId === parentUser.id &&
+                    user.phone === phone
+                );
+
+                if (existingTeacher) {
+                    existingTeacher.lastLoginDate = new Date().toISOString();
+                    const teacherIndex = allUsers.findIndex(u => u.id === existingTeacher.id);
+                    if (teacherIndex !== -1) {
+                        allUsers[teacherIndex] = existingTeacher;
+                        this.saveAllUsers(allUsers);
+                    }
+                    return { success: true, user: existingTeacher };
+                }
+
+                // Create new teacher account
+                const newTeacher = {
+                    id: this.generateUserId(),
+                    type: 'teacher',
+                    name: name,
+                    phone: phone,
+                    teacherCode: teacherCode.toUpperCase(),
+                    parentId: parentUser.id,
+                    parentName: parentUser.name,
+                    parentEmail: parentUser.email,
+                    children: parentUser.children,
+                    createdAt: new Date().toISOString(),
+                    lastLoginDate: new Date().toISOString(),
+                    isLocal: true
+                };
+
+                allUsers.push(newTeacher);
+                this.saveAllUsers(allUsers);
+
+                return { success: true, user: newTeacher };
+            }
+
+            static generateUserId() {
+                return 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            }
+
+            static generateTeacherCode() {
+                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                let result = '';
+                for (let i = 0; i < 9; i++) {
+                    result += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+                return result;
+            }
+
+            static hashPassword(password) {
+                let hash = 0;
+                for (let i = 0; i < password.length; i++) {
+                    const char = password.charCodeAt(i);
+                    hash = ((hash << 5) - hash) + char;
+                    hash = hash & hash;
+                }
+                return hash.toString();
+            }
+
+            static validateEmail(email) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                return emailRegex.test(email);
+            }
+
+            static validatePhone(phone) {
+                const phoneRegex = /^[\+]?[0-9\s\-\(\)]{10,}$/;
+                return phoneRegex.test(phone);
+            }
+
+            static validatePassword(password) {
+                if (password.length < 6) {
+                    return { valid: false, error: 'Password must be at least 6 characters long.' };
+                }
+                return { valid: true };
+            }
+
+            static validateName(name) {
+                if (name.length < 2) {
+                    return { valid: false, error: 'Name must be at least 2 characters long.' };
+                }
+                if (!/^[a-zA-Z\s]+$/.test(name)) {
+                    return { valid: false, error: 'Name can only contain letters and spaces.' };
+                }
+                return { valid: true };
+            }
+        }
+
+        // Task Management System (Enhanced with API integration)
+        class TaskManager {
+            static saveTasksLocal(userId, tasks) {
+                return DataStorage.save(`tasks_${userId}`, tasks);
+            }
+
+            static loadTasksLocal(userId) {
+                return DataStorage.load(`tasks_${userId}`) || [];
+            }
+
+            static generateTaskId() {
+                return 'task_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            }
+
+            // API-first task loading with local fallback
+            static async loadTasks(userId) {
+                try {
+                    // Try to fetch from API first
+                    const response = await apiClient.get(API_CONFIG.endpoints.tasks, { user_id: userId });
+                    
+                    if (response.success && response.tasks) {
+                        // Transform API tasks to local format
+                        const tasks = response.tasks.map(task => ({
+                            id: task.id,
+                            title: task.title,
+                            child: task.child_name,
+                            category: task.category,
+                            dueDate: task.due_date,
+                            completed: task.completed || false,
+                            createdAt: task.created_at,
+                            completedAt: task.completed_at,
+                            points: task.points || 5
+                        }));
+
+                        // Cache locally
+                        this.saveTasksLocal(userId, tasks);
+                        return tasks;
+                    }
+                } catch (error) {
+                    console.warn('API task loading failed, using local data:', error);
+                }
+
+                // Fallback to local data
+                return this.loadTasksLocal(userId);
+            }
+
+            // API-first task creation with local fallback
+            static async addTask(userId, task) {
+                try {
+                    // Try API creation first
+                    const apiPayload = {
+                        title: task.title,
+                        child_name: task.child,
+                        category: task.category,
+                        due_date: task.dueDate,
+                        user_id: userId
+                    };
+
+                    const response = await apiClient.post(API_CONFIG.endpoints.createTask, apiPayload);
+                    
+                    if (response.success && response.task) {
+                        // Transform API response to local format
+                        const newTask = {
+                            id: response.task.id,
+                            title: response.task.title,
+                            child: response.task.child_name,
+                            category: response.task.category,
+                            dueDate: response.task.due_date,
+                            completed: false,
+                            createdAt: response.task.created_at,
+                            points: response.task.points || 5
+                        };
+
+                        // Update local cache
+                        const tasks = this.loadTasksLocal(userId);
+                        tasks.push(newTask);
+                        this.saveTasksLocal(userId, tasks);
+
+                        return { success: true, task: newTask };
+                    }
+                } catch (error) {
+                    console.warn('API task creation failed, using local fallback:', error);
+                }
+
+                // Fallback to local creation
+                return this.addTaskLocal(userId, task);
+            }
+
+            // Local task creation fallback
+            static addTaskLocal(userId, task) {
+                const tasks = this.loadTasksLocal(userId);
+                const newTask = {
+                    ...task,
+                    id: this.generateTaskId(),
+                    createdAt: new Date().toISOString(),
+                    completed: false,
+                    isLocal: true // Flag for local-only tasks
+                };
+                tasks.push(newTask);
+                
+                if (this.saveTasksLocal(userId, tasks)) {
+                    return { success: true, task: newTask };
+                }
+                return { success: false, error: 'Failed to save task locally' };
+            }
+
+            // API-first task completion with local fallback
+            static async completeTask(userId, taskId) {
+                try {
+                    // Try API completion first
+                    const response = await apiClient.patch(`${API_CONFIG.endpoints.completeTask}/${taskId}`, {
+                        completed: true,
+                        completed_at: new Date().toISOString()
+                    });
+                    
+                    if (response.success) {
+                        // Update local cache
+                        const tasks = this.loadTasksLocal(userId);
+                        const taskIndex = tasks.findIndex(task => task.id === taskId);
+                        if (taskIndex !== -1) {
+                            tasks[taskIndex] = {
+                                ...tasks[taskIndex],
+                                completed: true,
+                                completedAt: new Date().toISOString(),
+                                points: response.task?.points || tasks[taskIndex].points || 5
+                            };
+                            this.saveTasksLocal(userId, tasks);
+                        }
+
+                        return { success: true };
+                    }
+                } catch (error) {
+                    console.warn('API task completion failed, using local fallback:', error);
+                }
+
+                // Fallback to local completion
+                return this.completeTaskLocal(userId, taskId);
+            }
+
+            // Local task completion fallback
+            static completeTaskLocal(userId, taskId) {
+                const tasks = this.loadTasksLocal(userId);
+                const taskIndex = tasks.findIndex(task => task.id === taskId);
+                if (taskIndex !== -1) {
+                    tasks[taskIndex] = { 
+                        ...tasks[taskIndex], 
+                        completed: true, 
+                        completedAt: new Date().toISOString() 
+                    };
+                    
+                    if (this.saveTasksLocal(userId, tasks)) {
+                        return { success: true };
+                    }
+                }
+                return { success: false };
+            }
+
+            // API-first task deletion with local fallback
+            static async deleteTask(userId, taskId) {
+                try {
+                    // Try API deletion first
+                    const response = await apiClient.delete(`${API_CONFIG.endpoints.deleteTask}/${taskId}`);
+                    
+                    if (response.success) {
+                        // Update local cache
+                        const tasks = this.loadTasksLocal(userId);
+                        const filteredTasks = tasks.filter(task => task.id !== taskId);
+                        this.saveTasksLocal(userId, filteredTasks);
+
+                        return { success: true };
+                    }
+                } catch (error) {
+                    console.warn('API task deletion failed, using local fallback:', error);
+                }
+
+                // Fallback to local deletion
+                return this.deleteTaskLocal(userId, taskId);
+            }
+
+            // Local task deletion fallback
+            static deleteTaskLocal(userId, taskId) {
+                const tasks = this.loadTasksLocal(userId);
+                const filteredTasks = tasks.filter(task => task.id !== taskId);
+                
+                if (this.saveTasksLocal(userId, filteredTasks)) {
+                    return { success: true };
+                }
+                return { success: false };
+            }
+
+            // API-first task update with local fallback
+            static async updateTask(userId, taskId, updates) {
+                try {
+                    // Try API update first
+                    const response = await apiClient.put(`${API_CONFIG.endpoints.updateTask}/${taskId}`, updates);
+                    
+                    if (response.success && response.task) {
+                        // Update local cache
+                        const tasks = this.loadTasksLocal(userId);
+                        const taskIndex = tasks.findIndex(task => task.id === taskId);
+                        if (taskIndex !== -1) {
+                            tasks[taskIndex] = {
+                                ...tasks[taskIndex],
+                                ...updates,
+                                updatedAt: new Date().toISOString()
+                            };
+                            this.saveTasksLocal(userId, tasks);
+                        }
+
+                        return { success: true };
+                    }
+                } catch (error) {
+                    console.warn('API task update failed, using local fallback:', error);
+                }
+
+                // Fallback to local update
+                return this.updateTaskLocal(userId, taskId, updates);
+            }
+
+            // Local task update fallback
+            static updateTaskLocal(userId, taskId, updates) {
+                const tasks = this.loadTasksLocal(userId);
+                const taskIndex = tasks.findIndex(task => task.id === taskId);
+                if (taskIndex !== -1) {
+                    tasks[taskIndex] = { ...tasks[taskIndex], ...updates };
+                    
+                    if (this.saveTasksLocal(userId, tasks)) {
+                        return { success: true };
+                    }
+                }
+                return { success: false };
+            }
+
+            // Sync local tasks with API (for offline-first approach)
+            static async syncTasks(userId) {
+                try {
+                    const localTasks = this.loadTasksLocal(userId);
+                    const localOnlyTasks = localTasks.filter(task => task.isLocal);
+
+                    // Upload local-only tasks to API
+                    for (const task of localOnlyTasks) {
+                        try {
+                            const apiPayload = {
+                                title: task.title,
+                                child_name: task.child,
+                                category: task.category,
+                                due_date: task.dueDate,
+                                completed: task.completed,
+                                created_at: task.createdAt,
+                                completed_at: task.completedAt,
+                                user_id: userId
+                            };
+
+                            const response = await apiClient.post(API_CONFIG.endpoints.createTask, apiPayload);
+                            
+                            if (response.success && response.task) {
+                                // Update local task with API ID
+                                const taskIndex = localTasks.findIndex(t => t.id === task.id);
+                                if (taskIndex !== -1) {
+                                    localTasks[taskIndex] = {
+                                        ...localTasks[taskIndex],
+                                        id: response.task.id,
+                                        isLocal: false
+                                    };
+                                }
+                            }
+                        } catch (error) {
+                            console.warn(`Failed to sync task ${task.id}:`, error);
+                        }
+                    }
+
+                    // Save updated tasks
+                    this.saveTasksLocal(userId, localTasks);
+
+                    // Fetch latest from API
+                    return await this.loadTasks(userId);
+                } catch (error) {
+                    console.warn('Task sync failed:', error);
+                    return this.loadTasksLocal(userId);
+                }
+            }
+        }
+
+        // Notification System
+        class NotificationManager {
+            static show(message, type = 'success', duration = 3000) {
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+                notification.textContent = message;
+                
+                document.body.appendChild(notification);
+                
+                setTimeout(() => notification.classList.add('show'), 100);
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                    setTimeout(() => document.body.removeChild(notification), 300);
+                }, duration);
+            }
+
+            static success(message) {
+                this.show(message, 'success');
+            }
+
+            static error(message) {
+                this.show(message, 'error');
+            }
+
+            static warning(message) {
+                this.show(message, 'warning');
+            }
+        }
+
+        // Initialize app with API integration
+        async function initializeApp() {
+            currentUser = UserManager.loadUser();
+            if (currentUser) {
+                const userId = currentUser.type === 'teacher' && currentUser.parentId ? currentUser.parentId : currentUser.id;
+                
+                // Load tasks with API sync
+                try {
+                    tasks = await TaskManager.loadTasks(userId);
+                    
+                    // Sync any local-only tasks with API
+                    if (tasks.some(task => task.isLocal)) {
+                        NotificationManager.success('Syncing your data with the server...');
+                        tasks = await TaskManager.syncTasks(userId);
+                    }
+                } catch (error) {
+                    console.warn('Failed to load tasks from API, using local data:', error);
+                    tasks = TaskManager.loadTasksLocal(userId);
+                }
+                
+                updateNavigation();
+                showDashboard();
+                NotificationManager.success(`Welcome back, ${currentUser.name}! 👋`);
+            }
+            
+            const today = new Date().toISOString().split('T')[0];
+            const dueDateInput = document.getElementById('taskDueDate');
+            if (dueDateInput) {
+                dueDateInput.min = today;
+            }
+        }
+
+        // Utility functions
+        function clearErrors() {
+            document.querySelectorAll('.error-message').forEach(error => {
+                error.classList.add('hidden');
+                error.textContent = '';
+            });
+            document.querySelectorAll('.field-error').forEach(field => {
+                field.classList.remove('field-error');
+            });
+        }
+
+        function showError(fieldId, message) {
+            const field = document.getElementById(fieldId);
+            const errorDiv = document.getElementById(`error_${fieldId.replace('reg_', '')}`);
+            
+            if (field) {
+                field.classList.add('field-error');
+                field.focus();
+            }
+            
+            if (errorDiv) {
+                errorDiv.textContent = message;
+                errorDiv.classList.remove('hidden');
+            }
+        }
+
+        // Modal functions
+        function showLogin() {
+            document.getElementById('loginModal').classList.remove('hidden');
+        }
+
+        function showRegister() {
+            const modal = document.getElementById('registerModal');
+            document.getElementById('registerForm').reset();
+            clearErrors();
+            selectedChildCount = null;
+            
+            document.getElementById('singleChildBtn').className = 'p-3 border-2 border-gray-300 rounded-lg hover:border-yellow-500 hover:bg-yellow-50 transition text-center';
+            document.getElementById('multipleChildrenBtn').className = 'p-3 border-2 border-gray-300 rounded-lg hover:border-yellow-500 hover:bg-yellow-50 transition text-center';
+            
+            document.getElementById('singleChildInput').classList.add('hidden');
+            document.getElementById('multipleChildrenInputs').classList.add('hidden');
+            
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.querySelectorAll('.fixed').forEach(modal => {
+                modal.classList.add('hidden');
+            });
+        }
+
+        function selectLoginType(type) {
+            const parentBtn = document.getElementById('parentLoginBtn');
+            const teacherBtn = document.getElementById('teacherLoginBtn');
+            const parentForm = document.getElementById('parentLoginForm');
+            const teacherForm = document.getElementById('teacherLoginForm');
+            
+            parentBtn.className = 'p-3 border-2 border-gray-300 rounded-lg hover:border-yellow-500 hover:bg-yellow-50 transition text-center';
+            teacherBtn.className = 'p-3 border-2 border-gray-300 rounded-lg hover:border-yellow-500 hover:bg-yellow-50 transition text-center';
+            
+            parentForm.classList.add('hidden');
+            teacherForm.classList.add('hidden');
+            
+            if (type === 'parent') {
+                parentBtn.className = 'p-3 border-2 border-yellow-500 bg-yellow-50 rounded-lg transition text-center';
+                parentForm.classList.remove('hidden');
+            } else if (type === 'teacher') {
+                teacherBtn.className = 'p-3 border-2 border-yellow-500 bg-yellow-50 rounded-lg transition text-center';
+                teacherForm.classList.remove('hidden');
+            }
+        }
+
+        function selectChildCount(type) {
+            selectedChildCount = type;
+            
+            const singleBtn = document.getElementById('singleChildBtn');
+            const multipleBtn = document.getElementById('multipleChildrenBtn');
+            const singleInput = document.getElementById('singleChildInput');
+            const multipleInputs = document.getElementById('multipleChildrenInputs');
+            
+            singleBtn.className = 'p-3 border-2 border-gray-300 rounded-lg hover:border-yellow-500 hover:bg-yellow-50 transition text-center';
+            multipleBtn.className = 'p-3 border-2 border-gray-300 rounded-lg hover:border-yellow-500 hover:bg-yellow-50 transition text-center';
+            
+            if (type === 'single') {
+                singleBtn.className = 'p-3 border-2 border-yellow-500 bg-yellow-50 rounded-lg transition text-center';
+                singleInput.classList.remove('hidden');
+                multipleInputs.classList.add('hidden');
+            } else if (type === 'multiple') {
+                multipleBtn.className = 'p-3 border-2 border-yellow-500 bg-yellow-50 rounded-lg transition text-center';
+                multipleInputs.classList.remove('hidden');
+                singleInput.classList.add('hidden');
+            }
+        }
+
+        function addChildInput() {
+            const container = document.getElementById('childrenInputContainer');
+            const currentCount = container.children.length;
+            
+            if (currentCount >= 6) {
+                NotificationManager.error('Maximum of 6 children allowed');
+                return;
+            }
+            
+            const newInput = document.createElement('div');
+            newInput.className = 'flex items-center space-x-2 mb-2';
+            
+            const childNumbers = ['Third', 'Fourth', 'Fifth', 'Sixth'];
+            const placeholder = childNumbers[currentCount - 2] + " child's name";
+            
+            newInput.innerHTML = `
+                <input type="text" name="childName" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent text-sm" placeholder="${placeholder}">
+                <button type="button" onclick="removeChildInput(this)" class="text-red-500 hover:text-red-700 hover:bg-red-50 px-3 py-2 rounded-lg font-bold transition">✕</button>
+            `;
+            
+            container.appendChild(newInput);
+            
+            if (currentCount + 1 >= 6) {
+                document.getElementById('addChildButton').style.display = 'none';
+            }
+        }
+
+        function removeChildInput(button) {
+            const container = document.getElementById('childrenInputContainer');
+            if (container.children.length > 2) {
+                button.parentElement.remove();
+                document.getElementById('addChildButton').style.display = 'block';
+            }
+        }
+
+        // Registration and login handlers
+        async function handleRegister(event) {
+            event.preventDefault();
+            clearErrors();
+            
+            const formData = new FormData(event.target);
+            const data = {
+                fullName: formData.get('fullName')?.trim(),
+                email: formData.get('email')?.trim(),
+                phone: formData.get('phone')?.trim(),
+                password: formData.get('password')?.trim()
+            };
+            
+            // Validate name
+            if (!data.fullName) {
+                showError('reg_fullName', 'Please enter your full name.');
+                return;
+            }
+            
+            const nameValidation = UserManager.validateName(data.fullName);
+            if (!nameValidation.valid) {
+                showError('reg_fullName', nameValidation.error);
+                return;
+            }
+            
+            // Validate email
+            if (!data.email) {
+                showError('reg_email', 'Please enter your email address.');
+                return;
+            }
+            
+            if (!UserManager.validateEmail(data.email)) {
+                showError('reg_email', 'Please enter a valid email address.');
+                return;
+            }
+            
+            // Validate phone
+            if (!data.phone) {
+                showError('reg_phone', 'Please enter your phone number.');
+                return;
+            }
+            
+            if (!UserManager.validatePhone(data.phone)) {
+                showError('reg_phone', 'Please enter a valid phone number.');
+                return;
+            }
+            
+            // Validate password
+            if (!data.password) {
+                showError('reg_password', 'Please enter a password.');
+                return;
+            }
+            
+            const passwordValidation = UserManager.validatePassword(data.password);
+            if (!passwordValidation.valid) {
+                showError('reg_password', passwordValidation.error);
+                return;
+            }
+            
+            // Validate children
+            let children = [];
+            if (!selectedChildCount) {
+                showError('childCount', 'Please select how many children you have.');
+                return;
+            }
+            
+            if (selectedChildCount === 'single') {
+                const singleChildName = document.getElementById('reg_singleChildName').value.trim();
+                if (!singleChildName) {
+                    showError('reg_singleChildName', 'Please enter your child\'s name.');
+                    return;
+                }
+                
+                const childNameValidation = UserManager.validateName(singleChildName);
+                if (!childNameValidation.valid) {
+                    showError('reg_singleChildName', childNameValidation.error);
+                    return;
+                }
+                
+                children = [singleChildName];
+            } else if (selectedChildCount === 'multiple') {
+                const childInputs = document.querySelectorAll('#childrenInputContainer input[name="childName"]');
+                const childNames = Array.from(childInputs)
+                    .map(input => input.value.trim())
+                    .filter(name => name !== '');
+                
+                if (childNames.length < 2) {
+                    showError('multipleChildren', 'Please enter at least 2 children names.');
+                    return;
+                }
+                
+                const hasEmptyRequired = Array.from(childInputs).some(input => input.value.trim() === '');
+                if (hasEmptyRequired) {
+                    showError('multipleChildren', 'Please fill in all children names.');
+                    return;
+                }
+                
+                for (let i = 0; i < childNames.length; i++) {
+                    const childNameValidation = UserManager.validateName(childNames[i]);
+                    if (!childNameValidation.valid) {
+                        showError('multipleChildren', `Child ${i + 1}: ${childNameValidation.error}`);
+                        return;
+                    }
+                }
+                
+                const uniqueNames = [...new Set(childNames)];
+                if (uniqueNames.length !== childNames.length) {
+                    showError('multipleChildren', 'Please ensure all children have different names.');
+                    return;
+                }
+                
+                children = childNames;
+            }
+            
+            const submitButton = event.target.querySelector('button[type="submit"]');
+            const originalText = submitButton.textContent;
+            submitButton.textContent = 'Creating Account...';
+            submitButton.disabled = true;
+            
+            try {
+                const registrationData = {
+                    fullName: data.fullName,
+                    email: data.email,
+                    phone: data.phone,
+                    password: data.password,
+                    children: children
+                };
+                
+                const result = UserManager.registerUser(registrationData);
+                
+                if (result.success) {
+                    currentUser = result.user;
+                    UserManager.saveUser(currentUser);
+                    
+                    NotificationManager.success(`Welcome ${data.fullName}! Your account has been created successfully. 🎉`);
+                    updateNavigation();
+                    showDashboard();
+                    closeModal();
+                } else {
+                    showError('reg_email', result.error);
+                }
+            } catch (error) {
+                console.error('Registration error:', error);
+                NotificationManager.error('Registration failed. Please try again.');
+            } finally {
+                submitButton.textContent = originalText;
+                submitButton.disabled = false;
+            }
+        }
+
+        async function handleLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById('parentEmail').value.trim();
+            const password = document.getElementById('parentPassword').value.trim();
+            
+            document.getElementById('parentEmail').classList.remove('field-error');
+            document.getElementById('parentPassword').classList.remove('field-error');
+            
+            if (!email) {
+                document.getElementById('parentEmail').classList.add('field-error');
+                document.getElementById('parentEmail').focus();
+                NotificationManager.error('Please enter your email address.');
+                return;
+            }
+            
+            if (!password) {
+                document.getElementById('parentPassword').classList.add('field-error');
+                document.getElementById('parentPassword').focus();
+                NotificationManager.error('Please enter your password.');
+                return;
+            }
+            
+            if (!UserManager.validateEmail(email)) {
+                document.getElementById('parentEmail').classList.add('field-error');
+                document.getElementById('parentEmail').focus();
+                NotificationManager.error('Please enter a valid email address.');
+                return;
+            }
+            
+            const submitButton = event.target.querySelector('button[type="submit"]');
+            const originalText = submitButton.textContent;
+            submitButton.textContent = 'Signing In...';
+            submitButton.disabled = true;
+            
+            try {
+                const result = UserManager.authenticateUser(email, password);
+                
+                if (result.success) {
+                    currentUser = result.user;
+                    UserManager.saveUser(currentUser);
+                    const userId = currentUser.type === 'teacher' && currentUser.parentId ? currentUser.parentId : currentUser.id;
+                    tasks = TaskManager.loadTasksLocal(userId);
+                    
+                    NotificationManager.success(`Welcome back, ${currentUser.name}! 👋`);
+                    updateNavigation();
+                    showDashboard();
+                    closeModal();
+                    
+                    document.getElementById('parentEmail').value = '';
+                    document.getElementById('parentPassword').value = '';
+                } else {
+                    document.getElementById('parentEmail').classList.add('field-error');
+                    document.getElementById('parentPassword').classList.add('field-error');
+                    document.getElementById('parentPassword').focus();
+                    NotificationManager.error(result.error);
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                NotificationManager.error('Login failed. Please try again.');
+            } finally {
+                submitButton.textContent = originalText;
+                submitButton.disabled = false;
+            }
+        }
+
+        async function handleTeacherLogin(event) {
+            event.preventDefault();
+            const name = document.getElementById('teacherName').value.trim();
+            const phone = document.getElementById('teacherPhone').value.trim();
+            const code = document.getElementById('teacherCode').value.trim().toUpperCase();
+            
+            document.getElementById('teacherName').classList.remove('field-error');
+            document.getElementById('teacherPhone').classList.remove('field-error');
+            document.getElementById('teacherCode').classList.remove('field-error');
+            
+            if (!name) {
+                document.getElementById('teacherName').classList.add('field-error');
+                document.getElementById('teacherName').focus();
+                NotificationManager.error('Please enter your full name.');
+                return;
+            }
+            
+            const nameValidation = UserManager.validateName(name);
+            if (!nameValidation.valid) {
+                document.getElementById('teacherName').classList.add('field-error');
+                document.getElementById('teacherName').focus();
+                NotificationManager.error(nameValidation.error);
+                return;
+            }
+            
+            if (!phone) {
+                document.getElementById('teacherPhone').classList.add('field-error');
+                document.getElementById('teacherPhone').focus();
+                NotificationManager.error('Please enter your phone number.');
+                return;
+            }
+            
+            if (!UserManager.validatePhone(phone)) {
+                document.getElementById('teacherPhone').classList.add('field-error');
+                document.getElementById('teacherPhone').focus();
+                NotificationManager.error('Please enter a valid phone number.');
+                return;
+            }
+            
+            if (!code) {
+                document.getElementById('teacherCode').classList.add('field-error');
+                document.getElementById('teacherCode').focus();
+                NotificationManager.error('Please enter the teacher code.');
+                return;
+            }
+            
+            const submitButton = event.target.querySelector('button[type="submit"]');
+            const originalText = submitButton.textContent;
+            submitButton.textContent = 'Signing In...';
+            submitButton.disabled = true;
+            
+            try {
+                const result = UserManager.authenticateTeacher(name, phone, code);
+                
+                if (result.success) {
+                    currentUser = result.user;
+                    UserManager.saveUser(currentUser);
+                    tasks = TaskManager.loadTasksLocal(currentUser.parentId);
+                    
+                    NotificationManager.success(`Welcome ${currentUser.name}! Connected to ${currentUser.parentName}'s family. 👩‍🏫`);
+                    updateNavigation();
+                    showDashboard();
+                    closeModal();
+                    
+                    document.getElementById('teacherName').value = '';
+                    document.getElementById('teacherPhone').value = '';
+                    document.getElementById('teacherCode').value = '';
+                } else {
+                    document.getElementById('teacherCode').classList.add('field-error');
+                    document.getElementById('teacherCode').focus();
+                    NotificationManager.error(result.error);
+                }
+            } catch (error) {
+                console.error('Teacher login error:', error);
+                NotificationManager.error('Login failed. Please try again.');
+            } finally {
+                submitButton.textContent = originalText;
+                submitButton.disabled = false;
+            }
+        }
+
+        // Navigation functions
+        function updateNavigation() {
+            const loginBtn = document.getElementById('loginBtn');
+            const registerBtn = document.getElementById('registerBtn');
+            const userDropdown = document.getElementById('userDropdown');
+            const userNameDisplay = document.getElementById('userNameDisplay');
+            const dropdownUserName = document.getElementById('dropdownUserName');
+            const dropdownUserType = document.getElementById('dropdownUserType');
+            
+            if (currentUser) {
+                loginBtn.classList.add('hidden');
+                registerBtn.classList.add('hidden');
+                userDropdown.classList.remove('hidden');
+                
+                userNameDisplay.textContent = currentUser.name;
+                dropdownUserName.textContent = currentUser.name;
+                dropdownUserType.textContent = currentUser.type === 'parent' ? 'Parent' : 'Teacher';
+            } else {
+                loginBtn.classList.remove('hidden');
+                registerBtn.classList.remove('hidden');
+                userDropdown.classList.add('hidden');
+            }
+        }
+
+        function toggleDropdown() {
+            const dropdownMenu = document.getElementById('dropdownMenu');
+            dropdownMenu.classList.toggle('hidden');
+        }
+
+        function logout() {
+            currentUser = null;
+            tasks = [];
+            UserManager.clearUser();
+            updateNavigation();
+            hideDashboard();
+            NotificationManager.success('Logged out successfully. See you soon! 👋');
+        }
+
+        // Dashboard functions
+        function showDashboard() {
+            document.getElementById('heroSection').classList.add('hidden');
+            document.getElementById('featuresSection').classList.add('hidden');
+            document.getElementById('getStartedSection').classList.add('hidden');
+            document.getElementById('pricingSection').classList.add('hidden');
+            document.getElementById('contactFooter').classList.add('hidden');
+            
+            document.getElementById('dashboard').classList.remove('hidden');
+            document.getElementById('parentDashboard').classList.remove('hidden');
+            
+            updateDashboard();
+        }
+
+        function hideDashboard() {
+            document.getElementById('dashboard').classList.add('hidden');
+            document.getElementById('parentDashboard').classList.add('hidden');
+            
+            document.getElementById('heroSection').classList.remove('hidden');
+            document.getElementById('featuresSection').classList.remove('hidden');
+            document.getElementById('getStartedSection').classList.remove('hidden');
+            document.getElementById('pricingSection').classList.remove('hidden');
+            document.getElementById('contactFooter').classList.remove('hidden');
+        }
+
+        async function updateDashboard() {
+            if (!currentUser) return;
+            
+            const userId = currentUser.type === 'teacher' && currentUser.parentId ? currentUser.parentId : currentUser.id;
+            
+            // Load tasks with API sync
+            try {
+                tasks = await TaskManager.loadTasks(userId);
+            } catch (error) {
+                console.warn('Failed to load tasks from API, using local data:', error);
+                tasks = TaskManager.loadTasksLocal(userId);
+            }
+            
+            // Update dashboard title and welcome message
+            const dashboardTitle = document.getElementById('dashboardTitle');
+            const welcomeMessage = document.getElementById('welcomeMessage');
+            
+            if (currentUser.type === 'teacher') {
+                dashboardTitle.textContent = `${currentUser.parentName}'s Family Dashboard 👩‍🏫`;
+                welcomeMessage.textContent = `Welcome ${currentUser.name}! Managing homework for ${currentUser.children.join(', ')}`;
+            } else {
+                dashboardTitle.textContent = 'Family Dashboard 👨‍👩‍👧‍👦';
+                welcomeMessage.textContent = `Welcome ${currentUser.name}! Manage tasks and track progress together`;
+            }
+            
+            // Update stats
+            const totalTasks = tasks.length;
+            const completedTasks = tasks.filter(task => task.completed).length;
+            const totalPoints = completedTasks * 5;
+            
+            document.getElementById('totalTasks').textContent = totalTasks;
+            document.getElementById('completedTasks').textContent = completedTasks;
+            document.getElementById('totalPoints').textContent = totalPoints;
+            document.getElementById('teacherCount').textContent = currentUser.type === 'parent' ? '1' : '0';
+            
+            // Update child select dropdown
+            updateChildSelect();
+            
+            // Update family leaderboard
+            updateFamilyLeaderboard();
+            
+            // Update tasks list
+            updateTasksList();
+            
+            // Show trial banner if needed
+            updateTrialBanner();
+        }
+
+        function updateChildSelect() {
+            const childSelect = document.getElementById('childSelect');
+            if (!childSelect) return;
+            
+            childSelect.innerHTML = '<option value="">Select child...</option>';
+            
+            const children = currentUser.type === 'teacher' ? currentUser.children : currentUser.children;
+            children.forEach(child => {
+                const option = document.createElement('option');
+                option.value = child;
+                option.textContent = child;
+                childSelect.appendChild(option);
+            });
+        }
+
+        function updateFamilyLeaderboard() {
+            const leaderboard = document.getElementById('familyLeaderboard');
+            if (!leaderboard) return;
+            
+            const children = currentUser.type === 'teacher' ? currentUser.children : currentUser.children;
+            const childStats = children.map(child => {
+                const childTasks = tasks.filter(task => task.child === child);
+                const completedTasks = childTasks.filter(task => task.completed).length;
+                const points = completedTasks * 5;
+                
+                return { name: child, tasks: childTasks.length, completed: completedTasks, points };
+            });
+            
+            childStats.sort((a, b) => b.points - a.points);
+            
+            leaderboard.innerHTML = '';
+            
+            if (childStats.length === 0) {
+                leaderboard.innerHTML = '<p class="text-gray-500 text-center">No children data available yet.</p>';
+                return;
+            }
+            
+            childStats.forEach((child, index) => {
+                const position = index + 1;
+                const medal = position === 1 ? '🥇' : position === 2 ? '🥈' : position === 3 ? '🥉' : '🏅';
+                
+                const childElement = document.createElement('div');
+                childElement.className = 'flex items-center justify-between p-4 bg-gray-50 rounded-lg';
+                childElement.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <span class="text-2xl">${medal}</span>
+                        <div>
+                            <p class="font-semibold text-gray-800">${child.name}</p>
+                            <p class="text-sm text-gray-600">${child.completed}/${child.tasks} tasks completed</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-xl font-bold" style="color: #fcd803;">${child.points} pts</p>
+                    </div>
+                `;
+                leaderboard.appendChild(childElement);
+            });
+        }
+
+        function updateTasksList() {
+            const tasksList = document.getElementById('tasksList');
+            if (!tasksList) return;
+            
+            tasksList.innerHTML = '';
+            
+            if (tasks.length === 0) {
+                tasksList.innerHTML = '<p class="text-gray-500 text-center">No tasks yet. Add your first task to get started! 📝</p>';
+                return;
+            }
+            
+            tasks.forEach(task => {
+                const taskElement = document.createElement('div');
+                taskElement.className = `p-4 border rounded-lg ${task.completed ? 'bg-green-50 border-green-200' : 'bg-white border-gray-200'}`;
+                
+                const categoryEmoji = {
+                    'homework': '📝',
+                    'reading': '📚',
+                    'project': '🎨',
+                    'chores': '🏠'
+                };
+                
+                const dueDate = new Date(task.dueDate).toLocaleDateString();
+                const isOverdue = new Date(task.dueDate) < new Date() && !task.completed;
+                
+                taskElement.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <span class="text-2xl">${categoryEmoji[task.category] || '📝'}</span>
+                            <div>
+                                <h4 class="font-semibold text-gray-800 ${task.completed ? 'line-through' : ''}">${task.title}</h4>
+                                <p class="text-sm text-gray-600">
+                                    ${task.child} • Due: ${dueDate}
+                                    ${isOverdue ? '<span class="text-red-500 font-semibold">OVERDUE</span>' : ''}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            ${task.completed ? 
+                                '<span class="text-green-600 font-semibold">✅ Completed</span>' : 
+                                `<button onclick="completeTask('${task.id}')" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition">Complete</button>`
+                            }
+                            <button onclick="deleteTask('${task.id}')" class="bg-red-500 text-white px-3 py-2 rounded-lg hover:bg-red-600 transition">🗑️</button>
+                        </div>
+                    </div>
+                `;
+                
+                tasksList.appendChild(taskElement);
+            });
+        }
+
+        function updateTrialBanner() {
+            const trialBanner = document.getElementById('trialBanner');
+            if (!trialBanner || !currentUser || currentUser.subscriptionStatus === 'active') {
+                trialBanner.classList.add('hidden');
+                return;
+            }
+            
+            const trialStartDate = new Date(currentUser.trialStartDate);
+            const trialEndDate = new Date(trialStartDate);
+            trialEndDate.setDate(trialEndDate.getDate() + 7);
+            
+            const today = new Date();
+            const daysRemaining = Math.ceil((trialEndDate - today) / (1000 * 60 * 60 * 24));
+            
+            if (daysRemaining <= 0) {
+                trialBanner.className = 'bg-red-100 border-l-4 border-red-500 p-4 mb-8';
+                trialBanner.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg font-semibold text-red-800">Trial Expired</h3>
+                            <p class="text-red-700">Your free trial has ended. Subscribe to continue using EasyHomework.</p>
+                        </div>
+                        <button onclick="selectPlan('single', 3000)" class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition">
+                            Subscribe Now
+                        </button>
+                    </div>
+                `;
+            } else if (daysRemaining <= 3) {
+                trialBanner.className = 'bg-yellow-100 border-l-4 border-yellow-500 p-4 mb-8';
+                trialBanner.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg font-semibold text-yellow-800">Trial Ending Soon</h3>
+                            <p class="text-yellow-700">${daysRemaining} day${daysRemaining === 1 ? '' : 's'} remaining in your free trial.</p>
+                        </div>
+                        <button onclick="selectPlan('single', 3000)" class="bg-yellow-600 text-white px-6 py-2 rounded-lg hover:bg-yellow-700 transition">
+                            Choose Plan
+                        </button>
+                    </div>
+                `;
+            } else {
+                trialBanner.className = 'bg-blue-100 border-l-4 border-blue-500 p-4 mb-8';
+                trialBanner.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg font-semibold text-blue-800">Free Trial Active</h3>
+                            <p class="text-blue-700">${daysRemaining} days remaining. Enjoying EasyHomework?</p>
+                        </div>
+                        <button onclick="selectPlan('single', 3000)" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
+                            Subscribe Early
+                        </button>
+                    </div>
+                `;
+            }
+            
+            trialBanner.classList.remove('hidden');
+        }
+
+        // Task management functions (Enhanced with API integration)
+        function showAddTaskModal() {
+            document.getElementById('addTaskModal').classList.remove('hidden');
+        }
+
+        async function addTask(event) {
+            event.preventDefault();
+            
+            const title = document.getElementById('taskTitle').value.trim();
+            const child = document.getElementById('childSelect').value;
+            const category = document.getElementById('taskCategory').value;
+            const dueDate = document.getElementById('taskDueDate').value;
+            
+            if (!title || !child || !category || !dueDate) {
+                NotificationManager.error('Please fill in all fields.');
+                return;
+            }
+            
+            const task = {
+                title: title,
+                child: child,
+                category: category,
+                dueDate: dueDate
+            };
+            
+            const userId = currentUser.type === 'teacher' && currentUser.parentId ? currentUser.parentId : currentUser.id;
+            
+            // Show loading state
+            const submitButton = event.target.querySelector('button[type="submit"]');
+            const originalText = submitButton.textContent;
+            submitButton.textContent = 'Adding Task...';
+            submitButton.disabled = true;
+            
+            try {
+                const result = await TaskManager.addTask(userId, task);
+                
+                if (result.success) {
+                    NotificationManager.success(`Task "${title}" added for ${child}! 📝`);
+                    await updateDashboard();
+                    closeModal();
+                    
+                    // Reset form
+                    document.getElementById('taskTitle').value = '';
+                    document.getElementById('childSelect').value = '';
+                    document.getElementById('taskCategory').value = '';
+                    document.getElementById('taskDueDate').value = '';
+                } else {
+                    NotificationManager.error(result.error || 'Failed to add task. Please try again.');
+                }
+            } catch (error) {
+                console.error('Add task error:', error);
+                NotificationManager.error('Failed to add task. Please try again.');
+            } finally {
+                submitButton.textContent = originalText;
+                submitButton.disabled = false;
+            }
+        }
+
+        async function completeTask(taskId) {
+            const userId = currentUser.type === 'teacher' && currentUser.parentId ? currentUser.parentId : currentUser.id;
+            const task = tasks.find(t => t.id === taskId);
+            
+            if (!task) {
+                NotificationManager.error('Task not found.');
+                return;
+            }
+            
+            // Show loading state
+            const completeButton = document.querySelector(`button[onclick="completeTask('${taskId}')"]`);
+            if (completeButton) {
+                completeButton.textContent = 'Completing...';
+                completeButton.disabled = true;
+            }
+            
+            try {
+                const result = await TaskManager.completeTask(userId, taskId);
+                
+                if (result.success) {
+                    // Add sticker animation
+                    const stickerElement = document.createElement('div');
+                    stickerElement.className = 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-6xl sticker z-50';
+                    stickerElement.textContent = '⭐';
+                    document.body.appendChild(stickerElement);
+                    
+                    setTimeout(() => {
+                        document.body.removeChild(stickerElement);
+                    }, 1000);
+                    
+                    NotificationManager.success(`Great job! ${task.child} completed "${task.title}" and earned 5 points! ⭐`);
+                    await updateDashboard();
+                } else {
+                    NotificationManager.error('Failed to complete task. Please try again.');
+                    
+                    // Reset button state
+                    if (completeButton) {
+                        completeButton.textContent = 'Complete';
+                        completeButton.disabled = false;
+                    }
+                }
+            } catch (error) {
+                console.error('Complete task error:', error);
+                NotificationManager.error('Failed to complete task. Please try again.');
+                
+                // Reset button state
+                if (completeButton) {
+                    completeButton.textContent = 'Complete';
+                    completeButton.disabled = false;
+                }
+            }
+        }
+
+        async function deleteTask(taskId) {
+            const userId = currentUser.type === 'teacher' && currentUser.parentId ? currentUser.parentId : currentUser.id;
+            const task = tasks.find(t => t.id === taskId);
+            
+            if (!task) {
+                NotificationManager.error('Task not found.');
+                return;
+            }
+            
+            if (!confirm(`Are you sure you want to delete "${task.title}"?`)) {
+                return;
+            }
+            
+            // Show loading state
+            const deleteButton = document.querySelector(`button[onclick="deleteTask('${taskId}')"]`);
+            if (deleteButton) {
+                deleteButton.textContent = '🗑️ Deleting...';
+                deleteButton.disabled = true;
+            }
+            
+            try {
+                const result = await TaskManager.deleteTask(userId, taskId);
+                
+                if (result.success) {
+                    NotificationManager.success('Task deleted successfully.');
+                    await updateDashboard();
+                } else {
+                    NotificationManager.error('Failed to delete task. Please try again.');
+                    
+                    // Reset button state
+                    if (deleteButton) {
+                        deleteButton.textContent = '🗑️';
+                        deleteButton.disabled = false;
+                    }
+                }
+            } catch (error) {
+                console.error('Delete task error:', error);
+                NotificationManager.error('Failed to delete task. Please try again.');
+                
+                // Reset button state
+                if (deleteButton) {
+                    deleteButton.textContent = '🗑️';
+                    deleteButton.disabled = false;
+                }
+            }
+        }
+
+        // Teacher invitation functions
+        function showInviteTeacherModal() {
+            const modal = document.getElementById('inviteTeacherModal');
+            const teacherCodeElement = document.getElementById('teacherCode');
+            
+            if (currentUser && currentUser.teacherCode) {
+                teacherCodeElement.textContent = currentUser.teacherCode;
+            } else {
+                teacherCodeElement.textContent = 'ERROR';
+            }
+            
+            modal.classList.remove('hidden');
+        }
+
+        function copyTeacherCode() {
+            const teacherCode = document.getElementById('teacherCode').textContent;
+            
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(teacherCode).then(() => {
+                    NotificationManager.success('Teacher code copied to clipboard! 📋');
+                }).catch(() => {
+                    fallbackCopyTextToClipboard(teacherCode);
+                });
+            } else {
+                fallbackCopyTextToClipboard(teacherCode);
+            }
+        }
+
+        function fallbackCopyTextToClipboard(text) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            textArea.style.top = '-999999px';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                document.execCommand('copy');
+                NotificationManager.success('Teacher code copied to clipboard! 📋');
+            } catch (err) {
+                NotificationManager.error('Failed to copy code. Please copy manually: ' + text);
+            }
+            
+            document.body.removeChild(textArea);
+        }
+
+        // Rewards modal
+        function showRewardsModal() {
+            document.getElementById('rewardsModal').classList.remove('hidden');
+        }
+
+        // Payment functions
+        function selectPlan(planType, amount) {
+            NotificationManager.success(`Redirecting to Paystack payment for ${planType} plan (₦${amount.toLocaleString()})...`);
+            
+            setTimeout(() => {
+                window.open('https://paystack.shop/pay/1xeyek0vuz', '_blank', 'noopener,noreferrer');
+                
+                setTimeout(() => {
+                    NotificationManager.success('Payment page opened! Complete your payment to activate your subscription. 💳');
+                    
+                    // Simulate successful payment for demo
+                    setTimeout(() => {
+                        if (currentUser) {
+                            currentUser.subscriptionStatus = 'active';
+                            currentUser.subscriptionPlan = planType;
+                            currentUser.subscriptionAmount = amount;
+                            currentUser.subscriptionDate = new Date().toISOString();
+                            UserManager.saveUser(currentUser);
+                            
+                            updateDashboard();
+                            NotificationManager.success('Payment completed! Welcome to EasyHomework Premium! 🎉');
+                        }
+                    }, 5000);
+                }, 1000);
+                
+                closeModal();
+            }, 1500);
+        }
+
+        // CSV Export Functions
+        function getAllParentEmails() {
+            const allUsers = UserManager.getAllUsers();
+            const parents = allUsers.filter(user => user.type === 'parent');
+            
+            return parents.map(parent => ({
+                id: parent.id,
+                name: parent.name,
+                email: parent.email,
+                phone: parent.phone,
+                childrenCount: parent.children ? parent.children.length : 0,
+                childrenNames: parent.children || [],
+                registrationDate: parent.createdAt,
+                subscriptionStatus: parent.subscriptionStatus || 'trial',
+                teacherCode: parent.teacherCode
+            }));
+        }
+
+        function exportParentEmails() {
+            const parentData = getAllParentEmails();
+            
+            if (parentData.length === 0) {
+                NotificationManager.warning('No parent accounts found in the database.');
+                return;
+            }
+            
+            // Create CSV content
+            const csvHeaders = 'Name,Email,Phone,Children Count,Children Names,Registration Date,Subscription Status,Teacher Code\n';
+            const csvRows = parentData.map(parent => {
+                const childrenNames = parent.childrenNames.join('; ');
+                const registrationDate = new Date(parent.registrationDate).toLocaleDateString();
+                return `"${parent.name}","${parent.email}","${parent.phone}",${parent.childrenCount},"${childrenNames}","${registrationDate}","${parent.subscriptionStatus}","${parent.teacherCode}"`;
+            }).join('\n');
+            
+            const csvContent = csvHeaders + csvRows;
+            
+            // Create and download CSV file
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `easyhomework_parents_${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            NotificationManager.success(`Exported ${parentData.length} parent records to CSV file! 📊`);
+            
+            // Show Google Sheets import guide
+            showGoogleSheetsGuide();
+        }
+
+        function showGoogleSheetsGuide() {
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            modal.innerHTML = `
+                <div class="bg-white rounded-xl p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-2xl font-bold text-gray-800">📊 Import to Google Sheets</h3>
+                        <button onclick="this.closest('.fixed').remove()" class="text-gray-500 hover:text-gray-700 text-2xl">×</button>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="bg-green-50 border-l-4 border-green-500 p-4">
+                            <h4 class="font-semibold text-green-800 mb-2">✅ CSV File Downloaded Successfully!</h4>
+                            <p class="text-green-700">Your parent registration data has been exported. Now follow these steps:</p>
+                        </div>
+                        
+                        <div class="space-y-3">
+                            <div class="flex items-start space-x-3">
+                                <span class="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">1</span>
+                                <div>
+                                    <h5 class="font-semibold">Open Google Sheets</h5>
+                                    <p class="text-gray-600">Go to <a href="https://sheets.google.com" target="_blank" class="text-blue-600 hover:underline">sheets.google.com</a> and create a new spreadsheet</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start space-x-3">
+                                <span class="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">2</span>
+                                <div>
+                                    <h5 class="font-semibold">Import the CSV File</h5>
+                                    <p class="text-gray-600">Click File → Import → Upload → Select the downloaded CSV file</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start space-x-3">
+                                <span class="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">3</span>
+                                <div>
+                                    <h5 class="font-semibold">Configure Import Settings</h5>
+                                    <p class="text-gray-600">Choose "Replace spreadsheet" and "Comma" as separator, then click "Import data"</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start space-x-3">
+                                <span class="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">4</span>
+                                <div>
+                                    <h5 class="font-semibold">Format Your Sheet</h5>
+                                    <p class="text-gray-600">Select row 1 → Format → Make header row bold and freeze it (View → Freeze → 1 row)</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4">
+                            <h4 class="font-semibold text-yellow-800 mb-2">💡 Pro Tips:</h4>
+                            <ul class="text-yellow-700 space-y-1 text-sm">
+                                <li>• Add filters to easily sort and search your data</li>
+                                <li>• Use conditional formatting to highlight active vs trial users</li>
+                                <li>• Share the sheet with your team for collaboration</li>
+                                <li>• Re-export and import regularly to keep data updated</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-blue-50 border-l-4 border-blue-500 p-4">
+                            <h4 class="font-semibold text-blue-800 mb-2">📈 Your Data Includes:</h4>
+                            <div class="grid grid-cols-2 gap-2 text-blue-700 text-sm">
+                                <div>• Parent Names & Contact Info</div>
+                                <div>• Children Count & Names</div>
+                                <div>• Registration Dates</div>
+                                <div>• Subscription Status</div>
+                                <div>• Teacher Invitation Codes</div>
+                                <div>• Phone Numbers</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 flex space-x-3">
+                        <a href="https://sheets.google.com" target="_blank" class="flex-1 bg-green-500 text-white py-3 px-4 rounded-lg font-semibold hover:bg-green-600 transition text-center">
+                            🚀 Open Google Sheets
+                        </a>
+                        <button onclick="this.closest('.fixed').remove()" class="flex-1 bg-gray-300 text-gray-700 py-3 px-4 rounded-lg font-semibold hover:bg-gray-400 transition">
+                            Got It!
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('userDropdown');
+            const dropdownMenu = document.getElementById('dropdownMenu');
+            
+            if (dropdown && !dropdown.contains(event.target)) {
+                dropdownMenu.classList.add('hidden');
+            }
+        });
+
+        // API Configuration Functions
+        function showAPIConfigModal() {
+            const modal = document.getElementById('apiConfigModal');
+            
+            // Update current status
+            document.getElementById('currentApiUrl').textContent = API_CONFIG.baseURL;
+            document.getElementById('apiBaseUrl').value = API_CONFIG.baseURL;
+            
+            // Load saved API key if exists
+            const savedApiKey = localStorage.getItem('api_key');
+            if (savedApiKey) {
+                document.getElementById('apiKey').value = savedApiKey;
+            }
+            
+            updateAPIStatusDisplay();
+            modal.classList.remove('hidden');
+        }
+
+        async function testAPIConnection() {
+            const baseUrl = document.getElementById('apiBaseUrl').value.trim();
+            const apiKey = document.getElementById('apiKey').value.trim();
+            
+            if (!baseUrl) {
+                NotificationManager.error('Please enter an API base URL.');
+                return;
+            }
+            
+            const testButton = document.querySelector('button[onclick="testAPIConnection()"]');
+            const originalText = testButton.textContent;
+            testButton.textContent = '🔍 Testing...';
+            testButton.disabled = true;
+            
+            try {
+                // Temporarily update API config for testing
+                const originalBaseURL = apiClient.baseURL;
+                apiClient.baseURL = baseUrl;
+                
+                // Add API key to headers if provided
+                const headers = {};
+                if (apiKey) {
+                    headers['X-API-Key'] = apiKey;
+                }
+                
+                // Test with a simple health check or auth endpoint
+                const response = await fetch(`${baseUrl}/health`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        ...headers
+                    },
+                    timeout: 5000
+                });
+                
+                if (response.ok) {
+                    NotificationManager.success('✅ API connection successful!');
+                    document.getElementById('apiConnectionStatus').textContent = 'Connected';
+                    document.getElementById('apiConnectionStatus').className = 'text-green-600 font-semibold';
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                // Restore original base URL
+                apiClient.baseURL = originalBaseURL;
+                
+            } catch (error) {
+                console.error('API connection test failed:', error);
+                NotificationManager.error(`❌ Connection failed: ${error.message}`);
+                document.getElementById('apiConnectionStatus').textContent = 'Connection Failed';
+                document.getElementById('apiConnectionStatus').className = 'text-red-600 font-semibold';
+                
+                // Restore original base URL
+                apiClient.baseURL = API_CONFIG.baseURL;
+            } finally {
+                testButton.textContent = originalText;
+                testButton.disabled = false;
+            }
+        }
+
+        function updateAPIConfig(event) {
+            event.preventDefault();
+            
+            const baseUrl = document.getElementById('apiBaseUrl').value.trim();
+            const apiKey = document.getElementById('apiKey').value.trim();
+            
+            if (!baseUrl) {
+                NotificationManager.error('Please enter an API base URL.');
+                return;
+            }
+            
+            // Update API configuration
+            API_CONFIG.baseURL = baseUrl;
+            apiClient.baseURL = baseUrl;
+            
+            // Save configuration to localStorage
+            localStorage.setItem('api_base_url', baseUrl);
+            if (apiKey) {
+                localStorage.setItem('api_key', apiKey);
+            } else {
+                localStorage.removeItem('api_key');
+            }
+            
+            // Update status display
+            document.getElementById('currentApiUrl').textContent = baseUrl;
+            updateAPIStatusDisplay();
+            
+            NotificationManager.success('API configuration saved successfully! 🎉');
+            closeModal();
+        }
+
+        async function syncAllData() {
+            if (!currentUser) {
+                NotificationManager.error('Please log in first.');
+                return;
+            }
+            
+            const syncButton = document.querySelector('button[onclick="syncAllData()"]');
+            const originalText = syncButton.textContent;
+            syncButton.textContent = '📤 Syncing...';
+            syncButton.disabled = true;
+            
+            try {
+                const userId = currentUser.type === 'teacher' && currentUser.parentId ? currentUser.parentId : currentUser.id;
+                
+                // Sync tasks
+                const syncedTasks = await TaskManager.syncTasks(userId);
+                
+                NotificationManager.success(`✅ Successfully synced ${syncedTasks.length} tasks with the API!`);
+                
+                // Update dashboard with synced data
+                await updateDashboard();
+                
+                // Update last sync time
+                localStorage.setItem('last_sync_time', new Date().toISOString());
+                updateAPIStatusDisplay();
+                
+            } catch (error) {
+                console.error('Data sync failed:', error);
+                NotificationManager.error('❌ Data sync failed. Please check your API configuration.');
+            } finally {
+                syncButton.textContent = originalText;
+                syncButton.disabled = false;
+            }
+        }
+
+        function resetToLocalMode() {
+            if (confirm('Are you sure you want to switch to local-only mode? This will disable API synchronization.')) {
+                // Clear API configuration
+                localStorage.removeItem('api_base_url');
+                localStorage.removeItem('api_key');
+                apiClient.clearTokens();
+                
+                // Reset to default API config
+                API_CONFIG.baseURL = 'https://your-api-domain.com/api';
+                apiClient.baseURL = API_CONFIG.baseURL;
+                
+                updateAPIStatusDisplay();
+                NotificationManager.success('Switched to local-only mode. Your data is stored in your browser.');
+                closeModal();
+            }
+        }
+
+        function updateAPIStatusDisplay() {
+            const statusElement = document.getElementById('apiConnectionStatus');
+            const lastSyncElement = document.getElementById('lastSyncTime');
+            const apiStatusBanner = document.getElementById('apiStatusBanner');
+            
+            // Update last sync time
+            const lastSync = localStorage.getItem('last_sync_time');
+            if (lastSync) {
+                const syncDate = new Date(lastSync);
+                lastSyncElement.textContent = syncDate.toLocaleString();
+            } else {
+                lastSyncElement.textContent = 'Never';
+            }
+            
+            // Check if using custom API
+            const customApiUrl = localStorage.getItem('api_base_url');
+            if (customApiUrl && customApiUrl !== 'https://your-api-domain.com/api') {
+                statusElement.textContent = 'Custom API Configured';
+                statusElement.className = 'text-blue-600 font-semibold';
+                
+                // Show API status banner
+                apiStatusBanner.innerHTML = `
+                    <div class="bg-blue-100 border-l-4 border-blue-500 p-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h4 class="font-semibold text-blue-800">🌐 API Mode Active</h4>
+                                <p class="text-blue-700">Connected to: ${customApiUrl}</p>
+                            </div>
+                            <button onclick="showAPIConfigModal()" class="text-blue-600 hover:text-blue-800 font-semibold">
+                                ⚙️ Configure
+                            </button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                statusElement.textContent = 'Local Storage Mode';
+                statusElement.className = 'text-gray-600';
+                
+                // Show local mode banner
+                apiStatusBanner.innerHTML = `
+                    <div class="bg-yellow-100 border-l-4 border-yellow-500 p-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h4 class="font-semibold text-yellow-800">💾 Local Storage Mode</h4>
+                                <p class="text-yellow-700">Data is stored in your browser. Configure API for cloud sync.</p>
+                            </div>
+                            <button onclick="showAPIConfigModal()" class="text-yellow-600 hover:text-yellow-800 font-semibold">
+                                🌐 Setup API
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // Load saved API configuration on startup
+        function loadAPIConfiguration() {
+            const savedApiUrl = localStorage.getItem('api_base_url');
+            const savedApiKey = localStorage.getItem('api_key');
+            
+            if (savedApiUrl) {
+                API_CONFIG.baseURL = savedApiUrl;
+                apiClient.baseURL = savedApiUrl;
+            }
+            
+            if (savedApiKey) {
+                // API key would be used in request headers when making API calls
+                // This is handled in the APIClient class
+            }
+        }
+
+        // Initialize app when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAPIConfiguration();
+            initializeApp();
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'987870bcb24e6343',t:'MTc1OTI4NDgwMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
